@@ -45,7 +45,7 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* --- Glassmorphism Component --- */
+        /* --- Glassmorphism --- */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -59,7 +59,7 @@
         #app-container {
             flex: 1;
             padding: 20px;
-            padding-bottom: 80px; /* Espace pour la nav bar */
+            padding-bottom: 80px;
             position: relative;
             max-width: 600px;
             margin: 0 auto;
@@ -80,13 +80,14 @@
             opacity: 1;
         }
 
-        /* --- Typography & Elements --- */
+        /* --- Typography --- */
         h1.title {
             text-align: center;
             font-size: 2.5rem;
             margin-bottom: 30px;
             color: var(--pink-accent);
             text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+            font-weight: 700;
         }
 
         input {
@@ -116,47 +117,55 @@
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         button.btn-primary:active {
             transform: scale(0.98);
         }
 
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Loader Bouton */
+        .btn-loader {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-left-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none; /* Caché par défaut */
+            margin-right: 10px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
         /* --- View: Auth --- */
         #view-auth {
             justify-content: center;
         }
-
-        .auth-container {
-            padding: 30px;
-        }
-
+        .auth-container { padding: 30px; }
         .link-text {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            text-decoration: underline;
-            opacity: 0.8;
+            text-align: center; margin-top: 15px;
+            font-size: 0.9rem; cursor: pointer; text-decoration: underline; opacity: 0.8;
         }
 
-        /* --- View: Chat Search --- */
-        .search-bar-wrapper {
-            position: relative;
-            margin-bottom: 20px;
-        }
+        /* --- View: Chat Search & List --- */
+        .search-bar-wrapper { position: relative; margin-bottom: 20px; }
         .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--pink-accent);
-            cursor: pointer;
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+            color: var(--pink-accent); cursor: pointer;
         }
         
-        .search-results {
+        .chat-list {
             flex: 1;
             overflow-y: auto;
+            padding-right: 5px; /* Pour scrollbar */
         }
 
         .user-card {
@@ -168,53 +177,43 @@
             transition: background 0.3s;
             border-radius: 12px;
         }
-        .user-card:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
+        .user-card:hover { background: rgba(255, 255, 255, 0.1); }
+        
         .avatar {
-            width: 45px;
-            height: 45px;
+            width: 45px; height: 45px;
             border-radius: 50%;
             background: linear-gradient(135deg, #ff9a9e, #fecfef);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 15px;
-            color: #333;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; margin-right: 15px; color: #333;
+        }
+
+        .section-label {
+            font-size: 0.8rem; opacity: 0.6; margin: 20px 0 10px 5px; text-transform: uppercase; letter-spacing: 1px;
         }
 
         /* --- View: Chat Room --- */
         #chat-header {
-            display: flex;
-            align-items: center;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--glass-border);
-            margin-bottom: 15px;
+            display: flex; align-items: center;
+            padding-bottom: 15px; border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 15px; position: relative;
         }
-        .back-btn {
-            margin-right: 15px;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
+        .back-btn { margin-right: 15px; font-size: 1.2rem; cursor: pointer; }
+        
         #messages-container {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            flex: 1; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 10px;
             padding-bottom: 10px;
         }
 
         .msg-bubble {
-            max-width: 75%;
-            padding: 10px 15px;
-            border-radius: 15px;
-            position: relative;
-            font-size: 0.95rem;
-            user-select: none; /* Interdiction clic long */
-            -webkit-user-select: none;
+            max-width: 75%; padding: 10px 15px;
+            border-radius: 15px; position: relative; font-size: 0.95rem;
             animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* Interdiction clic long */
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         @keyframes popIn {
@@ -223,151 +222,112 @@
         }
 
         .msg-bubble.mine {
-            align-self: flex-end;
-            background: var(--pink-accent);
-            border-bottom-right-radius: 2px;
-            color: white;
+            align-self: flex-end; background: var(--pink-accent);
+            border-bottom-right-radius: 2px; color: white;
         }
-
         .msg-bubble.theirs {
-            align-self: flex-start;
-            background: rgba(255, 255, 255, 0.2);
-            border-bottom-left-radius: 2px;
-            color: white;
+            align-self: flex-start; background: rgba(255, 255, 255, 0.2);
+            border-bottom-left-radius: 2px; color: white;
         }
+        .msg-sender { font-size: 0.7rem; margin-bottom: 4px; opacity: 0.8; font-weight: bold; }
 
-        .msg-sender {
-            font-size: 0.7rem;
-            margin-bottom: 4px;
-            opacity: 0.8;
-            font-weight: bold;
-        }
-
-        .chat-input-wrapper {
-            position: relative;
-            margin-top: 10px;
-        }
-        
+        .chat-input-wrapper { position: relative; margin-top: 10px; }
         .send-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--pink-accent);
-            cursor: pointer;
-            font-size: 1.2rem;
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--pink-accent); cursor: pointer; font-size: 1.2rem;
         }
 
-        /* --- Loader / Spinner --- */
-        .loader-wrapper {
+        /* --- Animated Typing Indicator (Bounce) --- */
+        .typing-indicator-wrapper {
             display: none; /* Caché par défaut */
-            justify-content: center;
-            padding: 20px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            width: fit-content;
+            margin-bottom: 10px;
         }
-        .loader-wrapper.active {
-            display: flex;
+        .typing-indicator-wrapper.active { display: flex; }
+
+        .typing-dots { display: flex; align-items: center; height: 20px; }
+        .typing-dots span {
+            display: block; width: 6px; height: 6px; background-color: rgba(255,255,255,0.7);
+            border-radius: 50%; margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
         }
-        .liquid-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-left-color: var(--pink-accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
         }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* --- Bottom Navigation --- */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            background: rgba(20, 20, 30, 0.6);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid var(--glass-border);
-            z-index: 100;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            display: flex; justify-content: space-around; align-items: center;
+            background: rgba(20, 20, 30, 0.6); backdrop-filter: blur(15px);
+            border-top: 1px solid var(--glass-border); z-index: 100;
         }
-        .nav-item {
-            color: rgba(255,255,255,0.5);
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .nav-item.active {
-            color: var(--pink-accent);
-            transform: translateY(-5px);
-        }
+        .nav-item { color: rgba(255,255,255,0.5); font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: var(--pink-accent); transform: translateY(-5px); }
 
         /* --- Profile --- */
-        .profile-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
-            text-align: center;
-        }
+        .profile-content { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <!-- MAIN APP CONTAINER -->
     <div id="app-container">
         
-        <!-- TOAST NOTIFICATION (Hidden by default) -->
-        <div id="toast" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 20px; z-index: 999; display: none;"></div>
+        <!-- TOAST NOTIFICATION -->
+        <div id="toast" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 20px; z-index: 999; display: none;"></div>
 
-        <!-- VIEW: AUTH (Login/Register) -->
+        <!-- VIEW: AUTH -->
         <section id="view-auth" class="view active">
             <div class="glass-panel auth-container anim-slide-up">
                 <h1 class="title">Love Vibes</h1>
                 
-                <!-- LOGIN FORM -->
+                <!-- LOGIN -->
                 <div id="login-form">
                     <input type="email" id="login-email" placeholder="Email">
                     <input type="password" id="login-pass" placeholder="Mot de passe">
-                    <button class="btn-primary" id="btn-login">Connexion</button>
+                    <button class="btn-primary" id="btn-login">
+                        <div class="btn-loader"></div> <span>Connexion</span>
+                    </button>
                     <div class="link-text" id="show-register">Créer un compte</div>
                 </div>
 
-                <!-- REGISTER FORM -->
+                <!-- REGISTER -->
                 <div id="register-form" style="display: none;">
                     <input type="text" id="reg-prenom" placeholder="Prénom">
                     <input type="text" id="reg-username" placeholder="Nom d'utilisateur (Unique)">
                     <input type="email" id="reg-email" placeholder="Email">
                     <input type="password" id="reg-pass" placeholder="Mot de passe">
                     <input type="password" id="reg-pass-conf" placeholder="Confirmer mot de passe">
-                    <button class="btn-primary" id="btn-register">S'inscrire</button>
+                    <button class="btn-primary" id="btn-register">
+                        <div class="btn-loader"></div> <span>S'inscrire</span>
+                    </button>
                     <div class="link-text" id="show-login">Retour connexion</div>
                 </div>
             </div>
         </section>
 
-        <!-- VIEW: CHAT SEARCH (Home) -->
+        <!-- VIEW: CHAT LIST (SEARCH + RECENT) -->
         <section id="view-chat-search" class="view">
             <h1 class="title" style="font-size: 1.8rem; margin-bottom: 20px;">Discussions</h1>
             
             <div class="search-bar-wrapper">
-                <input type="text" id="search-input" placeholder="Rechercher par nom d'utilisateur...">
+                <input type="text" id="search-input" placeholder="Rechercher un utilisateur...">
                 <i class="fas fa-search search-icon" id="btn-search"></i>
             </div>
 
-            <!-- LOADER -->
-            <div class="loader-wrapper" id="search-loader">
-                <div class="liquid-spinner"></div>
-            </div>
-
-            <!-- RESULTS -->
-            <div class="search-results" id="search-results">
-                <div style="text-align: center; opacity: 0.6; margin-top: 50px;">
-                    Entrez un nom d'utilisateur pour trouver quelqu'un.
-                </div>
+            <div class="chat-list" id="chat-list-container">
+                <!-- Liste Récente s'affichera ici -->
+                <div id="recent-chats-list"></div>
+                
+                <!-- Résultats de recherche s'afficheront ici -->
+                <div id="search-results"></div>
             </div>
         </section>
 
@@ -376,15 +336,18 @@
             <div id="chat-header">
                 <i class="fas fa-arrow-left back-btn" id="btn-back-chat"></i>
                 <div class="avatar" id="chat-avatar">?</div>
-                <div>
+                <div style="flex:1">
                     <h3 id="chat-username">Utilisateur</h3>
-                    <small id="typing-indicator" style="color: var(--pink-accent); opacity: 0; transition: opacity 0.3s;">...est en train d'écrire</small>
+                    <!-- Indicateur de saisie animé -->
+                    <div class="typing-indicator-wrapper" id="typing-indicator">
+                        <div class="typing-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div id="messages-container">
-                <!-- Messages here -->
-            </div>
+            <div id="messages-container"></div>
 
             <div class="chat-input-wrapper">
                 <input type="text" id="msg-input" placeholder="Votre message...">
@@ -401,7 +364,9 @@
                 <div style="width: 100%;">
                     <label style="font-size: 0.9rem; opacity: 0.8;">Modifier Nom d'utilisateur</label>
                     <input type="text" id="profile-username-edit">
-                    <button class="btn-primary" id="btn-save-profile">Enregistrer</button>
+                    <button class="btn-primary" id="btn-save-profile">
+                        <div class="btn-loader"></div> <span>Enregistrer</span>
+                    </button>
                     <button class="btn-primary" id="btn-logout" style="background: #e73c7e; margin-top: 10px;">Déconnexion</button>
                 </div>
             </div>
@@ -409,24 +374,19 @@
 
     </div>
 
-    <!-- BOTTOM NAVIGATION -->
+    <!-- BOTTOM NAV -->
     <nav class="bottom-nav" id="main-nav" style="display: none;">
-        <div class="nav-item active" id="nav-chat">
-            <i class="fas fa-comments"></i>
-        </div>
-        <div class="nav-item" id="nav-profile">
-            <i class="fas fa-user"></i>
-        </div>
+        <div class="nav-item active" id="nav-chat"><i class="fas fa-comments"></i></div>
+        <div class="nav-item" id="nav-profile"><i class="fas fa-user"></i></div>
     </nav>
 
-    <!-- FIREBASE SDK (Modular) -->
+    <!-- FIREBASE SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, query, where, getDocs, orderBy, limit, arrayUnion, deleteField } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, query, where, getDocs, orderBy, limit, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        // --- 1. CONFIGURATION ---
-        // REMPLACEZ CECI PAR VOS PROPRES CLES
+        // --- CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyCotpYjka_c1sYWyol0u41vMHpnp0zUEkc",
             authDomain: "love-vibes-77204.firebaseapp.com",
@@ -447,9 +407,9 @@
         let chatPartnerUsername = null;
         let unsubscribeMessages = null;
         let unsubscribeTyping = null;
-        let typingTimeout = null;
+        let unsubscribeRecentChats = null;
 
-        // --- DOM ELEMENTS ---
+        // --- DOM ---
         const views = {
             auth: document.getElementById('view-auth'),
             search: document.getElementById('view-chat-search'),
@@ -466,26 +426,33 @@
             setTimeout(() => toastEl.style.display = 'none', 3000);
         }
 
+        function setBtnLoading(btnId, isLoading) {
+            const btn = document.getElementById(btnId);
+            const loader = btn.querySelector('.btn-loader');
+            const span = btn.querySelector('span');
+            
+            if (isLoading) {
+                btn.disabled = true;
+                loader.style.display = 'block';
+            } else {
+                btn.disabled = false;
+                loader.style.display = 'none';
+            }
+        }
+
         function switchView(viewName) {
             Object.values(views).forEach(el => el.classList.remove('active'));
             views[viewName].classList.add('active');
 
-            // Gestion de la Nav Bar
-            if (viewName === 'search' || viewName === 'profile') {
-                nav.style.display = 'flex';
-            } else {
-                nav.style.display = 'none';
-            }
+            if (viewName === 'search' || viewName === 'profile') nav.style.display = 'flex';
+            else nav.style.display = 'none';
 
-            // Mise à jour icônes actives
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             if(viewName === 'search') document.getElementById('nav-chat').classList.add('active');
             if(viewName === 'profile') document.getElementById('nav-profile').classList.add('active');
         }
 
         // --- AUTHENTIFICATION ---
-        
-        // Toggle Forms
         document.getElementById('show-register').addEventListener('click', () => {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('register-form').style.display = 'block';
@@ -495,7 +462,6 @@
             document.getElementById('login-form').style.display = 'block';
         });
 
-        // Register
         document.getElementById('btn-register').addEventListener('click', async () => {
             const prenom = document.getElementById('reg-prenom').value.trim();
             const username = document.getElementById('reg-username').value.trim();
@@ -506,100 +472,142 @@
             if (!prenom || !username || !email || !pass) return showToast("Veuillez remplir tous les champs");
             if (pass !== passConf) return showToast("Les mots de passe ne correspondent pas");
 
+            setBtnLoading('btn-register', true);
             try {
-                // Vérifier unicité username
                 const q = query(collection(db, "users"), where("username", "==", username));
                 const querySnapshot = await getDocs(q);
-                if (!querySnapshot.empty) return showToast("Ce nom d'utilisateur est déjà pris");
+                if (!querySnapshot.empty) throw new Error("Ce nom d'utilisateur est déjà pris");
 
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
                 const user = cred.user;
 
-                // Enregistrer dans Firestore
                 await setDoc(doc(db, "users", user.uid), {
                     prenom: prenom,
                     username: username,
                     email: email
                 });
 
-                // Mettre à jour profil auth
                 await updateProfile(user, { displayName: prenom });
                 
                 showToast("Inscription réussie !");
+                // Redirection immédiate
+                switchView('search');
+
             } catch (e) {
-                showToast("Erreur: " + e.message);
+                showToast(e.message);
+            } finally {
+                setBtnLoading('btn-register', false);
             }
         });
 
-        // Login
         document.getElementById('btn-login').addEventListener('click', () => {
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-pass').value;
+            
+            setBtnLoading('btn-login', true);
             signInWithEmailAndPassword(auth, email, pass)
-                .catch(e => showToast("Erreur de connexion: " + e.code));
+                .then(() => {
+                    showToast("Connexion réussie !");
+                    // Redirection immédiate
+                    switchView('search');
+                })
+                .catch(e => showToast("Erreur: " + e.code))
+                .finally(() => setBtnLoading('btn-login', false));
         });
 
-        // Logout
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            signOut(auth);
-        });
+        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-        // --- AUTH LISTENER & REDIRECTION ---
+        // --- AUTH LISTENER ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // Charger les données utilisateur
                 const docSnap = await getDoc(doc(db, "users", user.uid));
                 if (docSnap.exists()) {
                     currentUserData = docSnap.data();
                     currentUserData.uid = user.uid;
                     
-                    // Initialiser l'interface profil
                     document.getElementById('profile-username-edit').value = currentUserData.username;
                     document.getElementById('my-avatar').textContent = currentUserData.prenom.charAt(0);
 
-                    // REDIRECTION AUTOMATIQUE VERS CHAT (comme demandé)
-                    switchView('search');
+                    // Charger la liste des discussions récentes
+                    loadRecentChats();
                 }
             } else {
                 switchView('auth');
             }
         });
 
+        // --- RECENT CHATS LIST ---
+        function loadRecentChats() {
+            if (unsubscribeRecentChats) unsubscribeRecentChats();
+
+            // Requête sur la collection 'chats' pour trouver où mon username est dans 'participants'
+            const q = query(collection(db, "chats"), where("participants", "array-contains", currentUserData.username));
+            
+            unsubscribeRecentChats = onSnapshot(q, (snapshot) => {
+                const listContainer = document.getElementById('recent-chats-list');
+                listContainer.innerHTML = ''; // Reset
+
+                if(snapshot.empty) {
+                    listContainer.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:0.9rem;">Aucune discussion récente.</div>';
+                    return;
+                }
+
+                snapshot.forEach((docSnap) => {
+                    const chatData = docSnap.data();
+                    // Trouver l'autre participant
+                    const otherUser = chatData.participants.find(p => p !== currentUserData.username);
+                    
+                    // Créer l'élément visuel
+                    const div = document.createElement('div');
+                    div.className = 'user-card glass-panel';
+                    div.style.marginBottom = '10px';
+                    div.style.background = 'transparent';
+                    div.innerHTML = `
+                        <div class="avatar">${otherUser.charAt(0).toUpperCase()}</div>
+                        <div>
+                            <div style="font-weight:600">@${otherUser}</div>
+                            <div style="font-size:0.8rem; opacity:0.7">Discuter</div>
+                        </div>
+                    `;
+                    // Clic ouvre le chat. On a besoin du prénom, on le cherchera à l'ouverture ou on l'a stocké dans le chat doc (pour simplifier ici, on utilise l'username)
+                    div.addEventListener('click', async () => {
+                        // Récupérer infos complètes du partenaire
+                        const userQ = query(collection(db, "users"), where("username", "==", otherUser));
+                        const userSnap = await getDocs(userQ);
+                        if(!userSnap.empty) {
+                            openChat(userSnap.docs[0].data());
+                        }
+                    });
+                    listContainer.appendChild(div);
+                });
+            });
+        }
+
         // --- CHAT SEARCH ---
         document.getElementById('btn-search').addEventListener('click', performSearch);
-        document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') performSearch();
-        });
+        document.getElementById('search-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') performSearch(); });
 
         async function performSearch() {
-            const input = document.getElementById('search-input');
-            const username = input.value.trim().toLowerCase();
-            const loader = document.getElementById('search-loader');
-            const results = document.getElementById('search-results');
-
+            const username = document.getElementById('search-input').value.trim().toLowerCase();
+            const resultsDiv = document.getElementById('search-results');
+            
             if (!username) return;
 
-            // Animation Loader
-            results.innerHTML = '';
-            loader.classList.add('active');
+            resultsDiv.innerHTML = '<div style="text-align:center; padding:10px;">Recherche...</div>';
 
             try {
-                // Simulation d'un délai pour l'effet "Spinner fluide" (200ms)
-                await new Promise(r => setTimeout(r, 600)); 
-
                 const q = query(collection(db, "users"), where("username", "==", username));
                 const querySnapshot = await getDocs(q);
-
-                loader.classList.remove('active');
+                resultsDiv.innerHTML = '';
 
                 if (querySnapshot.empty) {
-                    results.innerHTML = '<div style="text-align:center; padding:20px;">Aucun utilisateur trouvé</div>';
+                    resultsDiv.innerHTML = '<div style="text-align:center;">Aucun utilisateur trouvé</div>';
                     return;
                 }
 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    if (data.uid === currentUserData.uid) return; // Pas soi-même
+                    if (data.uid === currentUserData.uid) return;
 
                     const div = document.createElement('div');
                     div.className = 'user-card glass-panel';
@@ -611,11 +619,10 @@
                         </div>
                     `;
                     div.addEventListener('click', () => openChat(data));
-                    results.appendChild(div);
+                    resultsDiv.appendChild(div);
                 });
             } catch (e) {
-                loader.classList.remove('active');
-                showToast("Erreur recherche");
+                resultsDiv.innerHTML = '<div style="text-align:center; color:red;">Erreur</div>';
             }
         }
 
@@ -624,11 +631,10 @@
             return [u1, u2].sort().join('_');
         }
 
-        function openChat(partnerData) {
+        async function openChat(partnerData) {
             chatPartnerUsername = partnerData.username;
             currentChatId = getChatId(currentUserData.username, chatPartnerUsername);
             
-            // UI
             document.getElementById('chat-username').textContent = partnerData.prenom;
             document.getElementById('chat-avatar').textContent = partnerData.prenom.charAt(0);
             document.getElementById('messages-container').innerHTML = '';
@@ -636,6 +642,11 @@
             switchView('room');
             listenToMessages();
             listenToTyping();
+
+            // Créer/Mettre à jour le document du chat pour la liste récente
+            await setDoc(doc(db, "chats", currentChatId), {
+                participants: [currentUserData.username, chatPartnerUsername]
+            }, { merge: true });
         }
 
         document.getElementById('btn-back-chat').addEventListener('click', () => {
@@ -648,12 +659,8 @@
             const q = query(collection(db, `chats/${currentChatId}/messages`), orderBy("timestamp", "asc"));
             unsubscribeMessages = onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('messages-container');
-                // On ajoute seulement les nouveaux ou on recharge tout ? 
-                // Pour simplifier et garantir l'ordre :
                 container.innerHTML = '';
-                snapshot.forEach(doc => {
-                    appendMessage(doc.data());
-                });
+                snapshot.forEach(doc => appendMessage(doc.data()));
                 container.scrollTop = container.scrollHeight;
             });
         }
@@ -673,42 +680,33 @@
 
         // Send Message
         document.getElementById('btn-send').addEventListener('click', sendMessage);
-        document.getElementById('msg-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') sendMessage();
-        });
+        document.getElementById('msg-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
 
         async function sendMessage() {
             const input = document.getElementById('msg-input');
             const text = input.value.trim();
             if(!text) return;
 
-            try {
-                await addDoc(collection(db, `chats/${currentChatId}/messages`), {
-                    text: text,
-                    sender: currentUserData.username,
-                    senderName: currentUserData.prenom,
-                    timestamp: Date.now()
-                });
-                input.value = '';
-            } catch(e) {
-                console.error(e);
-            }
+            await addDoc(collection(db, `chats/${currentChatId}/messages`), {
+                text: text,
+                sender: currentUserData.username,
+                senderName: currentUserData.prenom,
+                timestamp: Date.now()
+            });
+            input.value = '';
         }
 
-        // Typing Indicator
+        // --- TYPING INDICATOR ANIMÉ ---
         document.getElementById('msg-input').addEventListener('input', () => {
             updateTypingStatus();
         });
 
         async function updateTypingStatus() {
             if(!currentChatId) return;
-            const docRef = doc(db, "chats", currentChatId);
-            // On utilise un champ typing qui map username -> timestamp
-            await updateDoc(docRef, {
+            // Utilise le timestamp actuel
+            await updateDoc(doc(db, "chats", currentChatId), {
                 [`typing.${currentUserData.username}`]: Date.now()
-            }).catch(() => {
-                // Le document n'existe pas encore, on l'ignore ou on le crée
-            });
+            }).catch(() => {}); // Ignore si doc n'existe pas encore
         }
 
         function listenToTyping() {
@@ -718,38 +716,37 @@
                     const partnerTypingTime = data.typing && data.typing[chatPartnerUsername];
                     const indicator = document.getElementById('typing-indicator');
                     
-                    // Si l'event date de moins de 3 secondes
+                    // Si l'event date de moins de 3 secondes, on anime
                     if(partnerTypingTime && (Date.now() - partnerTypingTime < 3000)) {
-                        indicator.style.opacity = 1;
+                        indicator.classList.add('active');
                     } else {
-                        indicator.style.opacity = 0;
+                        indicator.classList.remove('active');
                     }
                 }
             });
         }
 
-        // --- PROFILE UPDATE ---
+        // --- PROFILE ---
         document.getElementById('btn-save-profile').addEventListener('click', async () => {
             const newName = document.getElementById('profile-username-edit').value.trim();
             if(newName === currentUserData.username) return;
             
-            // Vérifier unicité
-            const q = query(collection(db, "users"), where("username", "==", newName));
-            const snap = await getDocs(q);
-            if(!snap.empty) return showToast("Nom déjà pris");
-
+            setBtnLoading('btn-save-profile', true);
             try {
-                await updateDoc(doc(db, "users", currentUserData.uid), {
-                    username: newName
-                });
+                const q = query(collection(db, "users"), where("username", "==", newName));
+                const snap = await getDocs(q);
+                if(!snap.empty) throw new Error("Nom déjà pris");
+
+                await updateDoc(doc(db, "users", currentUserData.uid), { username: newName });
                 currentUserData.username = newName;
                 showToast("Profil mis à jour !");
             } catch(e) {
-                showToast("Erreur mise à jour");
+                showToast(e.message);
+            } finally {
+                setBtnLoading('btn-save-profile', false);
             }
         });
 
-        // --- NAVIGATION EVENTS ---
         document.getElementById('nav-chat').addEventListener('click', () => switchView('search'));
         document.getElementById('nav-profile').addEventListener('click', () => switchView('profile'));
 
