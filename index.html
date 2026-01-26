@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ff69b4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Love Vibes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Love Vibes">
+    <title>Love Vibes - Chat</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167x167.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-color: #ffffff;
+            --pink-accent: #ff69b4;
+            --input-bg: rgba(0, 0, 0, 0.2);
+            --swipe-indicator: rgba(255, 105, 180, 0.3);
+            --black-text: #000000;
+            
+            /* Variables de couleur personnalisables */
+            --my-chat-color: #ff69b4;
+            --partner-chat-color: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overscroll-behavior: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Écran de Chargement (Splash Screen) --- */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #splash-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .splash-logo {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+
+        .splash-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ff69b4;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        /* --- Layout --- */
+        #app-container {
+            flex: 1;
+            padding: 20px;
+            padding-bottom: 80px;
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            display: none; /* Caché au début */
+        }
+
+        .view {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            height: 100%;
+            flex-direction: column;
+        }
+        
+        .view.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* --- Typography --- */
+        h1.title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--pink-accent);
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+            font-weight: 700;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: var(--input-bg);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            transition: 0.3s;
+            font-size: 16px; /* Évite le zoom sur iOS */
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--pink-accent);
+        }
+
+        button.btn-primary {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: var(--pink-accent);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button.btn-primary:active { 
+            transform: scale(0.98); 
+        }
+        
+        button:disabled { 
+            opacity: 0.7; 
+            cursor: not-allowed; 
+        }
+
+        .btn-loader {
+            width: 20px; 
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-left-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none; 
+            margin-right: 10px;
+        }
+
+        /* --- View: Auth --- */
+        #view-auth { 
+            justify-content: center; 
+        }
+        
+        .auth-container { 
+            padding: 30px; 
+        }
+        
+        .link-text { 
+            text-align: center; 
+            margin-top: 15px; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            text-decoration: underline; 
+            opacity: 0.8; 
+        }
+
+        /* --- View: Chat Search --- */
+        .search-bar-wrapper { 
+            position: relative; 
+            margin-bottom: 20px; 
+        }
+        
+        .search-icon { 
+            position: absolute; 
+            right: 15px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: var(--pink-accent); 
+            cursor: pointer; 
+        }
+        
+        .chat-list { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding-right: 5px; 
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .user-card {
+            display: flex; 
+            align-items: center; 
+            padding: 15px; 
+            margin-bottom: 10px; 
+            cursor: pointer;
+            transition: background 0.3s; 
+            border-radius: 12px;
+        }
+        
+        .user-card:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+        }
+        
+        .avatar {
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-weight: bold; 
+            margin-right: 15px; 
+            color: #333;
+        }
+
+        /* --- CHAT ROOM FLEXBOX LAYOUT (CORRECTED) --- */
+        #view-chat-room.active {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 100vh;
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+            z-index: 1000;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Flexbox container pour header, messages et input */
+        #chat-room-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            position: relative;
+        }
+
+        #chat-header {
+            flex-shrink: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        #chat-messages-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        #messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px 15px 80px 15px;
+            display: flex;
+            flex-direction: column;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+
+        #messages-container.with-reply-preview {
+            padding-bottom: 140px;
+        }
+
+        /* --- BULLES DE MESSAGES AVEC COULEURS PERSONNALISÉES --- */
+        .msg-bubble {
+            max-width: 75%;
+            padding: 10px 15px 20px 15px;
+            border-radius: 18px;
+            position: relative;
+            font-size: 0.95rem;
+            animation: popIn 0.3s ease-out;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s;
+            touch-action: pan-y;
+            will-change: transform;
+        }
+
+        .msg-bubble.swiping {
+            transition: transform 0.1s ease;
+            background: var(--swipe-indicator) !important;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* MOI (Droite) - Utilise la couleur personnalisée */
+        .msg-bubble.mine {
+            align-self: flex-end;
+            background: var(--my-chat-color) !important;
+            border-bottom-right-radius: 2px;
+            color: white;
+        }
+
+        /* L'AUTRE (Gauche) - Utilise la couleur personnalisée */
+        .msg-bubble.theirs {
+            align-self: flex-start;
+            background: var(--partner-chat-color) !important;
+            border-bottom-left-radius: 2px;
+            color: #f0f0f0;
+        }
+
+        /* Heure (Style WhatsApp) */
+        .msg-time {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.7);
+            position: absolute;
+            bottom: 4px;
+            right: 8px;
+            pointer-events: none;
+        }
+
+        .msg-sender { 
+            font-size: 0.7rem; 
+            margin-bottom: 4px; 
+            opacity: 0.8; 
+            font-weight: bold; 
+            display: block; 
+            pointer-events: none;
+        }
+
+        /* --- PRÉVISUALISATION DE RÉPONSE --- */
+        #reply-preview-wrapper {
+            position: sticky;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            z-index: 99;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        #reply-preview {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 12px 20px;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            pointer-events: all;
+        }
+
+        #reply-preview.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .reply-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .reply-preview-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--pink-accent);
+        }
+
+        .reply-preview-sender {
+            color: var(--black-text);
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin: 0 3px;
+        }
+
+        .reply-preview-content {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 30px;
+        }
+
+        #cancel-reply-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s;
+            pointer-events: all;
+        }
+
+        #cancel-reply-btn:hover {
+            color: var(--pink-accent);
+        }
+
+        /* --- ENCADRÉ DE RÉPONSE DANS LES MESSAGES --- */
+        .reply-to-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-left: 3px solid var(--pink-accent);
+            border-radius: 8px 0 0 8px;
+            padding: 6px 10px;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+            opacity: 0.9;
+            pointer-events: none;
+        }
+
+        .reply-to-sender {
+            font-weight: bold;
+            color: var(--pink-accent);
+            font-size: 0.75rem;
+            margin-bottom: 2px;
+        }
+
+        .reply-to-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        /* --- BARRE DE SAISIE FIXE --- */
+        #chat-input-container {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--glass-border);
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .chat-input-wrapper {
+            padding: 15px 20px;
+            width: 100%;
+        }
+
+        .send-btn {
+            position: absolute; 
+            right: 10px; 
+            top: 50%; 
+            transform: translateY(-50%);
+            background: none; 
+            border: none; 
+            color: var(--pink-accent); 
+            cursor: pointer; 
+            font-size: 1.2rem;
+            padding: 10px;
+        }
+
+        .chat-input-wrapper input {
+            width: 100%;
+            padding: 12px 50px 12px 15px;
+            margin: 0;
+            border-radius: 25px;
+            background: var(--input-bg);
+        }
+
+        /* --- INDICATEUR DE SAISIE --- */
+        .typing-bubble {
+            display: none;
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            border-bottom-left-radius: 2px;
+            padding: 12px 15px;
+            max-width: 60px;
+            margin-bottom: 8px;
+            animation: fadeIn 0.3s ease;
+            order: 9999;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .typing-dots-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 15px;
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: facebookBounce 1.4s infinite ease-in-out both;
+        }
+
+        .dot:nth-child(1) { 
+            animation-delay: -0.32s; 
+        }
+        .dot:nth-child(2) { 
+            animation-delay: -0.16s; 
+        }
+        .dot:nth-child(3) { 
+            animation-delay: 0s; 
+        }
+
+        @keyframes facebookBounce {
+            0%, 60%, 100% { 
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            30% { 
+                transform: translateY(-5px);
+                opacity: 1;
+            }
+        }
+
+        /* --- PAGE PARAMÈTRES / PERSONNALISATION --- */
+        #view-settings {
+            justify-content: flex-start;
+            padding-top: 20px;
+        }
+
+        .settings-container {
+            padding: 30px;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .settings-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--pink-accent);
+            font-weight: 600;
+        }
+
+        .color-picker-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .color-picker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .color-picker-label {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .color-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .color-preview:hover {
+            transform: scale(1.05);
+        }
+
+        .color-option {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .color-option-item {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border 0.2s;
+        }
+
+        .color-option-item:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option-item.active {
+            border-color: white;
+            transform: scale(1.1);
+        }
+
+        .notification-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .toggle-label {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--pink-accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* --- Bottom Navigation --- */
+        .bottom-nav {
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 60px;
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center;
+            background: rgba(20, 20, 30, 0.6); 
+            backdrop-filter: blur(15px);
+            border-top: 1px solid var(--glass-border); 
+            z-index: 100;
+        }
+        
+        .nav-item { 
+            color: rgba(255,255,255,0.5); 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .nav-item.active { 
+            color: var(--pink-accent); 
+            transform: translateY(-5px); 
+        }
+        
+        .nav-label {
+            font-size: 0.7rem;
+            margin-top: 2px;
+        }
+
+        /* --- Install Prompt --- */
+        #install-prompt {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px;
+            max-width: 90%;
+            width: 400px;
+            z-index: 1000;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        .install-prompt-content {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .install-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: var(--pink-accent);
+        }
+
+        .install-text h4 {
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .install-text p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .install-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .install-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .install-btn.primary {
+            background: var(--pink-accent);
+            color: white;
+        }
+
+        .install-btn.secondary {
+            background: transparent;
+            color: rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Ajustement pour les messages sur mobile */
+        @media (max-width: 768px) {
+            #messages-container {
+                padding: 10px 10px 80px 10px;
+            }
+            
+            #messages-container.with-reply-preview {
+                padding-bottom: 130px;
+            }
+            
+            .chat-input-wrapper {
+                padding: 10px 15px;
+            }
+            
+            #reply-preview-wrapper {
+                bottom: 60px;
+            }
+            
+            #reply-preview {
+                padding: 10px 15px;
+            }
+            
+            .splash-logo {
+                font-size: 2.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .msg-bubble {
+                max-width: 85%;
+            }
+            
+            .color-picker-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Mode PWA - Cache les éléments du navigateur */
+        @media all and (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            
+            #app-container {
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
+            
+            .bottom-nav {
+                height: calc(60px + env(safe-area-inset-bottom));
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Écran de Chargement -->
+    <div id="splash-screen">
+        <div class="splash-logo">💖 Love Vibes</div>
+        <div class="splash-spinner"></div>
+    </div>
+
+    <!-- Install Prompt -->
+    <div id="install-prompt">
+        <div class="install-prompt-content">
+            <div class="install-icon">📱</div>
+            <div class="install-text">
+                <h4>Installer Love Vibes</h4>
+                <p>Installez l'application pour une meilleure expérience et recevoir des notifications</p>
+            </div>
+        </div>
+        <div class="install-actions">
+            <button class="install-btn secondary" id="install-later">Plus tard</button>
+            <button class="install-btn primary" id="install-now">Installer</button>
+        </div>
+    </div>
+
+    <div id="app-container">
+        
+        <!-- TOAST NOTIFICATION -->
+        <div id="toast" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 20px; z-index: 999; display: none;"></div>
+
+        <!-- VIEW: AUTH -->
+        <section id="view-auth" class="view active">
+            <div class="glass-panel auth-container anim-slide-up">
+                <h1 class="title">Love Vibes</h1>
+                
+                <div id="login-form">
+                    <input type="email" id="login-email" placeholder="Email">
+                    <input type="password" id="login-pass" placeholder="Mot de passe">
+                    <button class="btn-primary" id="btn-login">
+                        <div class="btn-loader"></div> <span>Connexion</span>
+                    </button>
+                    <div class="link-text" id="show-register">Créer un compte</div>
+                </div>
+
+                <div id="register-form" style="display: none;">
+                    <input type="text" id="reg-prenom" placeholder="Prénom">
+                    <input type="text" id="reg-username" placeholder="Nom d'utilisateur (Unique)">
+                    <input type="email" id="reg-email" placeholder="Email">
+                    <input type="password" id="reg-pass" placeholder="Mot de passe">
+                    <input type="password" id="reg-pass-conf" placeholder="Confirmer mot de passe">
+                    <button class="btn-primary" id="btn-register">
+                        <div class="btn-loader"></div> <span>S'inscrire</span>
+                    </button>
+                    <div class="link-text" id="show-login">Retour connexion</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: CHAT LIST -->
+        <section id="view-chat-search" class="view">
+            <h1 class="title" style="font-size: 1.8rem; margin-bottom: 20px;">Discussions</h1>
+            
+            <div class="search-bar-wrapper">
+                <input type="text" id="search-input" placeholder="Rechercher un utilisateur...">
+                <i class="fas fa-search search-icon" id="btn-search"></i>
+            </div>
+
+            <div class="chat-list" id="chat-list-container">
+                <div id="recent-chats-list"></div>
+                <div id="search-results"></div>
+            </div>
+        </section>
+
+        <!-- VIEW: CHAT ROOM -->
+        <section id="view-chat-room" class="view">
+            <div id="chat-room-container">
+                <!-- Header fixe -->
+                <div id="chat-header">
+                    <i class="fas fa-arrow-left back-btn" id="btn-back-chat"></i>
+                    <div class="avatar" id="chat-avatar">?</div>
+                    <div style="flex:1">
+                        <h3 id="chat-username">Utilisateur</h3>
+                    </div>
+                </div>
+                
+                <!-- Conteneur principal pour messages + scroll -->
+                <div id="chat-messages-wrapper">
+                    <!-- Zone de messages scrollable -->
+                    <div id="messages-container">
+                        <!-- Les messages s'affichent ici dynamiquement -->
+                        <!-- L'indicateur de saisie sera injecté ici en JS -->
+                    </div>
+                </div>
+
+                <!-- Prévisualisation de réponse (sticky) -->
+                <div id="reply-preview-wrapper">
+                    <div id="reply-preview">
+                        <div class="reply-preview-header">
+                            <div class="reply-preview-title">
+                                Réponse à <span class="reply-preview-sender" id="reply-preview-sender"></span>
+                            </div>
+                            <button id="cancel-reply-btn">✕</button>
+                        </div>
+                        <div class="reply-preview-content" id="reply-preview-text"></div>
+                    </div>
+                </div>
+
+                <!-- Barre de saisie fixe en bas -->
+                <div id="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="msg-input" placeholder="Votre message...">
+                        <button class="send-btn" id="btn-send"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: PROFILE -->
+        <section id="view-profile" class="view">
+            <div class="glass-panel profile-content">
+                <h1 class="title" style="font-size: 1.8rem;">Mon Profil</h1>
+                <div class="avatar" style="width: 80px; height: 80px; font-size: 2rem; margin-bottom: 20px;" id="my-avatar">M</div>
+                
+                <div style="width: 100%;">
+                    <label style="font-size: 0.9rem; opacity: 0.8;">Modifier Nom d'utilisateur</label>
+                    <input type="text" id="profile-username-edit">
+                    <button class="btn-primary" id="btn-save-profile">
+                        <div class="btn-loader"></div> <span>Enregistrer</span>
+                    </button>
+                    <button class="btn-primary" id="btn-logout" style="background: #e73c7e; margin-top: 10px;">Déconnexion</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: SETTINGS -->
+        <section id="view-settings" class="view">
+            <div class="glass-panel settings-container">
+                <h1 class="title" style="font-size: 1.8rem; margin-bottom: 30px;">Paramètres</h1>
+                
+                <div class="settings-section">
+                    <h3 class="settings-title">Personnalisation des Couleurs</h3>
+                    <p style="margin-bottom: 20px; opacity: 0.8; font-size: 0.9rem;">
+                        Choisissez les couleurs de votre interface. Ces modifications sont uniquement visibles sur votre appareil.
+                    </p>
+                    
+                    <div class="color-picker-container">
+                        <div class="color-picker">
+                            <div class="color-picker-label">Mes messages</div>
+                            <div class="color-preview" id="my-color-preview" style="background: #ff69b4;"></div>
+                            <input type="color" id="my-color-picker" value="#ff69b4" style="display: none;">
+                            <div class="color-option">
+                                <div class="color-option-item" style="background: #ff69b4;" data-color="#ff69b4"></div>
+                                <div class="color-option-item" style="background: #e73c7e;" data-color="#e73c7e"></div>
+                                <div class="color-option-item" style="background: #23a6d5;" data-color="#23a6d5"></div>
+                                <div class="color-option-item" style="background: #23d5ab;" data-color="#23d5ab"></div>
+                                <div class="color-option-item" style="background: #ff9a00;" data-color="#ff9a00"></div>
+                                <div class="color-option-item" style="background: #9d4edd;" data-color="#9d4edd"></div>
+                                <div class="color-option-item" style="background: #ff595e;" data-color="#ff595e"></div>
+                                <div class="color-option-item" style="background: #8ac926;" data-color="#8ac926"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="color-picker">
+                            <div class="color-picker-label">Messages reçus</div>
+                            <div class="color-preview" id="partner-color-preview" style="background: rgba(255, 255, 255, 0.15);"></div>
+                            <input type="color" id="partner-color-picker" value="#ffffff" style="display: none; opacity: 0.15;">
+                            <div class="color-option">
+                                <div class="color-option-item" style="background: rgba(255,255,255,0.15);" data-color="rgba(255,255,255,0.15)"></div>
+                                <div class="color-option-item" style="background: rgba(200,230,255,0.2);" data-color="rgba(200,230,255,0.2)"></div>
+                                <div class="color-option-item" style="background: rgba(255,200,230,0.2);" data-color="rgba(255,200,230,0.2)"></div>
+                                <div class="color-option-item" style="background: rgba(200,255,230,0.2);" data-color="rgba(200,255,230,0.2)"></div>
+                                <div class="color-option-item" style="background: rgba(230,230,255,0.2);" data-color="rgba(230,230,255,0.2)"></div>
+                                <div class="color-option-item" style="background: rgba(255,230,200,0.2);" data-color="rgba(255,230,200,0.2)"></div>
+                                <div class="color-option-item" style="background: rgba(230,255,200,0.2);" data-color="rgba(230,255,200,0.2)"></div>
+                                <div class="color-option-item" style="background: rgba(200,200,230,0.2);" data-color="rgba(200,200,230,0.2)"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" id="btn-save-colors" style="margin-top: 20px;">
+                        Enregistrer les couleurs
+                    </button>
+                    <button class="btn-primary" id="btn-reset-colors" style="background: #666; margin-top: 10px;">
+                        Réinitialiser aux couleurs par défaut
+                    </button>
+                </div>
+                
+                <div class="settings-section">
+                    <h3 class="settings-title">Notifications</h3>
+                    
+                    <div class="notification-toggle">
+                        <div class="toggle-label">Activer les notifications push</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-notifications">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="notification-toggle">
+                        <div class="toggle-label">Son de notification</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-notification-sound" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="notification-toggle">
+                        <div class="toggle-label">Vibrations</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-vibration" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <button class="btn-primary" id="btn-request-permission" style="margin-top: 20px;">
+                        <i class="fas fa-bell"></i> Autoriser les notifications
+                    </button>
+                </div>
+                
+                <div class="settings-section">
+                    <h3 class="settings-title">Application</h3>
+                    <button class="btn-primary" id="btn-install-app" style="margin-bottom: 10px;">
+                        <i class="fas fa-download"></i> Installer l'application
+                    </button>
+                    <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 10px;">
+                        Version 2.0.0 • Love Vibes © 2024
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- BOTTOM NAVIGATION ÉTENDUE -->
+    <nav class="bottom-nav" id="main-nav" style="display: none;">
+        <div class="nav-item active" id="nav-chat">
+            <i class="fas fa-comments"></i>
+            <div class="nav-label">Chats</div>
+        </div>
+        <div class="nav-item" id="nav-profile">
+            <i class="fas fa-user"></i>
+            <div class="nav-label">Profil</div>
+        </div>
+        <div class="nav-item" id="nav-settings">
+            <i class="fas fa-cog"></i>
+            <div class="nav-label">Paramètres</div>
+        </div>
+    </nav>
+
+    <!-- Audio pour les notifications -->
+    <audio id="notification-sound" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/286/286-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Service Worker Registration -->
+    <script>
+        // Enregistrer le Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker enregistré avec succès:', registration.scope);
+                }).catch(function(error) {
+                    console.log('Échec de l\'enregistrement du ServiceWorker:', error);
+                });
+            });
+        }
+        
+        // Gérer l'installation de la PWA
+        let deferredPrompt;
+        const installPrompt = document.getElementById('install-prompt');
+        const installNowBtn = document.getElementById('install-now');
+        const installLaterBtn = document.getElementById('install-later');
+        const installAppBtn = document.getElementById('btn-install-app');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Afficher le bouton d'installation dans les paramètres
+            if (installAppBtn) {
+                installAppBtn.style.display = 'flex';
+            }
+            
+            // Afficher le prompt automatiquement après 5 secondes
+            setTimeout(() => {
+                if (deferredPrompt && !localStorage.getItem('installPromptDismissed')) {
+                    installPrompt.style.display = 'block';
+                }
+            }, 5000);
+        });
+        
+        // Gérer l'installation
+        function handleInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Utilisateur a installé la PWA');
+                        installPrompt.style.display = 'none';
+                        if (installAppBtn) {
+                            installAppBtn.style.display = 'none';
+                        }
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+        
+        if (installNowBtn) {
+            installNowBtn.addEventListener('click', handleInstall);
+        }
+        
+        if (installAppBtn) {
+            installAppBtn.addEventListener('click', handleInstall);
+        }
+        
+        if (installLaterBtn) {
+            installLaterBtn.addEventListener('click', () => {
+                installPrompt.style.display = 'none';
+                localStorage.setItem('installPromptDismissed', 'true');
+            });
+        }
+        
+        // Masquer le prompt si l'app est déjà installée
+        window.addEventListener('appinstalled', () => {
+            installPrompt.style.display = 'none';
+            if (installAppBtn) {
+                installAppBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+        });
+        
+        // Vérifier si l'app est déjà en mode standalone
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+            console.log('Application en mode standalone');
+        }
+    </script>
+
+    <!-- FIREBASE SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, query, where, getDocs, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
+
+        // --- CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCotpYjka_c1sYWyol0u41vMHpnp0zUEkc",
+            authDomain: "love-vibes-77204.firebaseapp.com",
+            projectId: "love-vibes-77204",
+            storageBucket: "love-vibes-77204.firebasestorage.app",
+            messagingSenderId: "397798206580",
+            appId: "1:397798206580:web:3a11d4d86303eeffd5f521",
+            measurementId: "G-G5Y0MW01D4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let messaging = null;
+
+        // Initialiser Firebase Messaging si supporté
+        if ('Notification' in window && 'serviceWorker' in navigator) {
+            try {
+                messaging = getMessaging(app);
+            } catch (error) {
+                console.warn('Firebase Messaging non initialisé:', error);
+            }
+        }
+
+        // --- STATE ---
+        let currentUserData = null;
+        let currentChatId = null;
+        let chatPartnerUsername = null;
+        let unsubscribeMessages = null;
+        let unsubscribeTyping = null;
+        let unsubscribeRecentChats = null;
+        let typingTimeout = null;
+        let typingInactivityTimer = null;
+        let replyingTo = null;
+        const TYPING_INACTIVITY_TIMEOUT = 4000;
+
+        // Référence pour l'indicateur de saisie
+        let typingBubbleElement = null;
+
+        // --- DOM ---
+        const views = {
+            auth: document.getElementById('view-auth'),
+            search: document.getElementById('view-chat-search'),
+            room: document.getElementById('view-chat-room'),
+            profile: document.getElementById('view-profile'),
+            settings: document.getElementById('view-settings')
+        };
+        
+        const nav = document.getElementById('main-nav');
+        const toastEl = document.getElementById('toast');
+        const messagesContainer = document.getElementById('messages-container');
+        const replyPreview = document.getElementById('reply-preview');
+        const replyPreviewSender = document.getElementById('reply-preview-sender');
+        const replyPreviewText = document.getElementById('reply-preview-text');
+        const cancelReplyBtn = document.getElementById('cancel-reply-btn');
+        const msgInput = document.getElementById('msg-input');
+        const splashScreen = document.getElementById('splash-screen');
+        const appContainer = document.getElementById('app-container');
+        const notificationSound = document.getElementById('notification-sound');
+
+        // --- GESTION DES COULEURS ---
+        const myColorPreview = document.getElementById('my-color-preview');
+        const partnerColorPreview = document.getElementById('partner-color-preview');
+        const myColorPicker = document.getElementById('my-color-picker');
+        const partnerColorPicker = document.getElementById('partner-color-picker');
+        const saveColorsBtn = document.getElementById('btn-save-colors');
+        const resetColorsBtn = document.getElementById('btn-reset-colors');
+        const colorOptions = document.querySelectorAll('.color-option-item');
+
+        // Charger les couleurs sauvegardées
+        function loadSavedColors() {
+            const savedMyColor = localStorage.getItem('loveVibes_myColor');
+            const savedPartnerColor = localStorage.getItem('loveVibes_partnerColor');
+            
+            if (savedMyColor) {
+                document.documentElement.style.setProperty('--my-chat-color', savedMyColor);
+                if (myColorPreview) myColorPreview.style.background = savedMyColor;
+                if (myColorPicker) myColorPicker.value = savedMyColor;
+                
+                // Activer l'option correspondante
+                document.querySelectorAll('.color-option-item').forEach(item => {
+                    if (item.dataset.color === savedMyColor) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+            
+            if (savedPartnerColor) {
+                document.documentElement.style.setProperty('--partner-chat-color', savedPartnerColor);
+                if (partnerColorPreview) partnerColorPreview.style.background = savedPartnerColor;
+                
+                // Pour les couleurs rgba, on convertit en hex pour le color picker
+                if (savedPartnerColor.includes('rgba')) {
+                    const rgb = savedPartnerColor.match(/\d+/g);
+                    if (rgb && rgb.length >= 3) {
+                        const hex = rgbToHex(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
+                        if (partnerColorPicker) partnerColorPicker.value = hex;
+                    }
+                }
+                
+                // Activer l'option correspondante
+                document.querySelectorAll('.color-option-item').forEach(item => {
+                    if (item.dataset.color === savedPartnerColor) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // Convertir RGB en HEX
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        // Sauvegarder les couleurs
+        function saveColors() {
+            const myColor = myColorPicker.value;
+            const partnerColor = partnerColorPreview.style.backgroundColor;
+            
+            localStorage.setItem('loveVibes_myColor', myColor);
+            localStorage.setItem('loveVibes_partnerColor', partnerColor);
+            
+            document.documentElement.style.setProperty('--my-chat-color', myColor);
+            document.documentElement.style.setProperty('--partner-chat-color', partnerColor);
+            
+            showToast('Couleurs enregistrées !');
+        }
+
+        // Réinitialiser les couleurs
+        function resetColors() {
+            localStorage.removeItem('loveVibes_myColor');
+            localStorage.removeItem('loveVibes_partnerColor');
+            
+            document.documentElement.style.setProperty('--my-chat-color', '#ff69b4');
+            document.documentElement.style.setProperty('--partner-chat-color', 'rgba(255, 255, 255, 0.15)');
+            
+            if (myColorPreview) myColorPreview.style.background = '#ff69b4';
+            if (partnerColorPreview) partnerColorPreview.style.background = 'rgba(255, 255, 255, 0.15)';
+            if (myColorPicker) myColorPicker.value = '#ff69b4';
+            
+            // Réactiver les options par défaut
+            document.querySelectorAll('.color-option-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.color === '#ff69b4' || item.dataset.color === 'rgba(255,255,255,0.15)') {
+                    item.classList.add('active');
+                }
+            });
+            
+            showToast('Couleurs réinitialisées');
+        }
+
+        // Gestion des événements de couleur
+        if (myColorPreview && myColorPicker) {
+            myColorPreview.addEventListener('click', () => {
+                myColorPicker.click();
+            });
+            
+            myColorPicker.addEventListener('input', (e) => {
+                myColorPreview.style.background = e.target.value;
+                document.querySelectorAll('.color-option-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+            });
+        }
+
+        if (partnerColorPreview && partnerColorPicker) {
+            partnerColorPreview.addEventListener('click', () => {
+                partnerColorPicker.click();
+            });
+            
+            partnerColorPicker.addEventListener('input', (e) => {
+                const hex = e.target.value;
+                const rgb = hexToRgb(hex);
+                const rgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.2)`;
+                partnerColorPreview.style.background = rgba;
+                document.querySelectorAll('.color-option-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+            });
+        }
+
+        // Convertir HEX en RGB
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : {r: 255, g: 255, b: 255};
+        }
+
+        // Gestion des options de couleur prédéfinies
+        colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const color = option.dataset.color;
+                const parent = option.closest('.color-picker');
+                
+                if (parent) {
+                    const preview = parent.querySelector('.color-preview');
+                    if (preview) {
+                        preview.style.background = color;
+                        
+                        // Désactiver toutes les options du même groupe
+                        parent.querySelectorAll('.color-option-item').forEach(item => {
+                            item.classList.remove('active');
+                        });
+                        
+                        // Activer l'option sélectionnée
+                        option.classList.add('active');
+                        
+                        // Mettre à jour le color picker si c'est une couleur hex
+                        if (color.startsWith('#') && parent.id.includes('my')) {
+                            if (myColorPicker) myColorPicker.value = color;
+                        }
+                    }
+                }
+            });
+        });
+
+        // Sauvegarder les couleurs
+        if (saveColorsBtn) {
+            saveColorsBtn.addEventListener('click', saveColors);
+        }
+
+        // Réinitialiser les couleurs
+        if (resetColorsBtn) {
+            resetColorsBtn.addEventListener('click', resetColors);
+        }
+
+        // --- NOTIFICATIONS PUSH ---
+        const notificationToggle = document.getElementById('toggle-notifications');
+        const notificationSoundToggle = document.getElementById('toggle-notification-sound');
+        const vibrationToggle = document.getElementById('toggle-vibration');
+        const requestPermissionBtn = document.getElementById('btn-request-permission');
+
+        // Charger les préférences de notification
+        function loadNotificationPreferences() {
+            const notificationsEnabled = localStorage.getItem('loveVibes_notificationsEnabled') === 'true';
+            const soundEnabled = localStorage.getItem('loveVibes_soundEnabled') !== 'false'; // true par défaut
+            const vibrationEnabled = localStorage.getItem('loveVibes_vibrationEnabled') !== 'false'; // true par défaut
+            
+            if (notificationToggle) notificationToggle.checked = notificationsEnabled;
+            if (notificationSoundToggle) notificationSoundToggle.checked = soundEnabled;
+            if (vibrationToggle) vibrationToggle.checked = vibrationEnabled;
+            
+            if (notificationsEnabled) {
+                requestNotificationPermission();
+            }
+        }
+
+        // Sauvegarder les préférences
+        function saveNotificationPreferences() {
+            if (notificationToggle) {
+                localStorage.setItem('loveVibes_notificationsEnabled', notificationToggle.checked);
+            }
+            if (notificationSoundToggle) {
+                localStorage.setItem('loveVibes_soundEnabled', notificationSoundToggle.checked);
+            }
+            if (vibrationToggle) {
+                localStorage.setItem('loveVibes_vibrationEnabled', vibrationToggle.checked);
+            }
+        }
+
+        // Demander la permission pour les notifications
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                showToast('Votre navigateur ne supporte pas les notifications');
+                return;
+            }
+            
+            if (Notification.permission === 'granted') {
+                showToast('Notifications déjà autorisées');
+                await registerServiceWorkerForNotifications();
+                return;
+            }
+            
+            if (Notification.permission !== 'denied') {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        showToast('Notifications autorisées !');
+                        await registerServiceWorkerForNotifications();
+                    } else {
+                        showToast('Notifications refusées');
+                    }
+                } catch (error) {
+                    console.error('Erreur de permission:', error);
+                    showToast('Erreur lors de la demande de permission');
+                }
+            }
+        }
+
+        // Enregistrer le Service Worker pour les notifications
+        async function registerServiceWorkerForNotifications() {
+            if (!messaging) return;
+            
+            try {
+                // Demander le token FCM
+                const currentToken = await getToken(messaging, {
+                    vapidKey: 'BLlK6SwxVAPY0k-3HInqlgj6aPE58dY4sxqGk10mRgrLpRhAe_BmH-qcuPZNN1X4z7tsjTSABgHmlBmDvglP9I0'
+                });
+                
+                if (currentToken) {
+                    console.log('Token FCM:', currentToken);
+                    // Ici, vous enverriez normalement ce token à votre backend
+                    // pour envoyer des notifications à cet appareil
+                    localStorage.setItem('loveVibes_fcmToken', currentToken);
+                    
+                    // Écouter les messages en arrière-plan
+                    onMessage(messaging, (payload) => {
+                        console.log('Message reçu en arrière-plan:', payload);
+                        showNotification(payload);
+                    });
+                } else {
+                    console.log('Aucun token FCM disponible');
+                }
+            } catch (error) {
+                console.error('Erreur lors de l\'obtention du token:', error);
+            }
+        }
+
+        // Afficher une notification
+        function showNotification(payload) {
+            // Vérifier si les notifications sont activées
+            const notificationsEnabled = localStorage.getItem('loveVibes_notificationsEnabled') === 'true';
+            if (!notificationsEnabled) return;
+            
+            const title = payload.notification?.title || 'Love Vibes';
+            const options = {
+                body: payload.notification?.body || 'Nouveau message',
+                icon: '/icons/icon-192x192.png',
+                badge: '/icons/icon-192x192.png',
+                vibrate: [200, 100, 200],
+                tag: 'love-vibes-notification',
+                renotify: true,
+                data: {
+                    url: window.location.href,
+                    chatId: payload.data?.chatId
+                }
+            };
+            
+            // Jouer le son si activé
+            const soundEnabled = localStorage.getItem('loveVibes_soundEnabled') !== 'false';
+            if (soundEnabled && notificationSound) {
+                notificationSound.currentTime = 0;
+                notificationSound.play().catch(e => console.log('Erreur de lecture du son:', e));
+            }
+            
+            // Vibrer si activé
+            const vibrationEnabled = localStorage.getItem('loveVibes_vibrationEnabled') !== 'false';
+            if (vibrationEnabled && 'vibrate' in navigator) {
+                navigator.vibrate([200, 100, 200]);
+            }
+            
+            // Afficher la notification
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(title, options);
+                });
+            } else if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, options);
+            }
+        }
+
+        // Gestion des événements de notification
+        if (notificationToggle) {
+            notificationToggle.addEventListener('change', () => {
+                saveNotificationPreferences();
+                if (notificationToggle.checked) {
+                    requestNotificationPermission();
+                }
+            });
+        }
+
+        if (notificationSoundToggle) {
+            notificationSoundToggle.addEventListener('change', saveNotificationPreferences);
+        }
+
+        if (vibrationToggle) {
+            vibrationToggle.addEventListener('change', saveNotificationPreferences);
+        }
+
+        if (requestPermissionBtn) {
+            requestPermissionBtn.addEventListener('click', requestNotificationPermission);
+        }
+
+        // --- UTILS ---
+        function showToast(msg) {
+            toastEl.textContent = msg;
+            toastEl.style.display = 'block';
+            setTimeout(() => toastEl.style.display = 'none', 3000);
+        }
+
+        function setBtnLoading(btnId, isLoading) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            
+            const loader = btn.querySelector('.btn-loader');
+            if (isLoading) {
+                btn.disabled = true;
+                if (loader) loader.style.display = 'block';
+            } else {
+                btn.disabled = false;
+                if (loader) loader.style.display = 'none';
+            }
+        }
+
+        function switchView(viewName) {
+            Object.values(views).forEach(el => el.classList.remove('active'));
+            if (views[viewName]) {
+                views[viewName].classList.add('active');
+            }
+            
+            if (viewName === 'search' || viewName === 'profile' || viewName === 'settings') {
+                nav.style.display = 'flex';
+            } else {
+                nav.style.display = 'none';
+            }
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            if (viewName === 'search') document.getElementById('nav-chat').classList.add('active');
+            if (viewName === 'profile') document.getElementById('nav-profile').classList.add('active');
+            if (viewName === 'settings') document.getElementById('nav-settings').classList.add('active');
+        }
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                if (messagesContainer) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            }, 50);
+        }
+
+        // Vibration haptique
+        function hapticFeedback() {
+            const vibrationEnabled = localStorage.getItem('loveVibes_vibrationEnabled') !== 'false';
+            if (vibrationEnabled && 'vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // --- INITIALISATION ---
+        window.addEventListener('load', () => {
+            // Charger les préférences
+            loadSavedColors();
+            loadNotificationPreferences();
+            
+            // Masquer l'écran de chargement après 1.5 secondes
+            setTimeout(() => {
+                splashScreen.classList.add('fade-out');
+                appContainer.style.display = 'block';
+                
+                // Après l'animation, cacher complètement
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                }, 500);
+            }, 1500);
+        });
+
+        // --- AUTH ---
+        document.getElementById('show-register').addEventListener('click', () => {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        });
+        
+        document.getElementById('show-login').addEventListener('click', () => {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        });
+
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const prenom = document.getElementById('reg-prenom').value.trim();
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const pass = document.getElementById('reg-pass').value;
+            const passConf = document.getElementById('reg-pass-conf').value;
+
+            if (!prenom || !username || !email || !pass) {
+                showToast("Veuillez remplir tous les champs");
+                return;
+            }
+            
+            if (pass !== passConf) {
+                showToast("Les mots de passe ne correspondent pas");
+                return;
+            }
+
+            setBtnLoading('btn-register', true);
+            try {
+                const q = query(collection(db, "users"), where("username", "==", username));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) throw new Error("Ce nom d'utilisateur est déjà pris");
+
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                const user = cred.user;
+                await setDoc(doc(db, "users", user.uid), { prenom: prenom, username: username, email: email });
+                await updateProfile(user, { displayName: prenom });
+                showToast("Inscription réussie !");
+                switchView('search');
+            } catch (e) { 
+                showToast(e.message); 
+            } finally { 
+                setBtnLoading('btn-register', false); 
+            }
+        });
+
+        document.getElementById('btn-login').addEventListener('click', () => {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+            setBtnLoading('btn-login', true);
+            signInWithEmailAndPassword(auth, email, pass)
+                .then(() => { 
+                    showToast("Connexion réussie !"); 
+                    switchView('search'); 
+                })
+                .catch(e => showToast("Erreur: " + e.code))
+                .finally(() => setBtnLoading('btn-login', false));
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const docSnap = await getDoc(doc(db, "users", user.uid));
+                if (docSnap.exists()) {
+                    currentUserData = docSnap.data();
+                    currentUserData.uid = user.uid;
+                    document.getElementById('profile-username-edit').value = currentUserData.username;
+                    document.getElementById('my-avatar').textContent = currentUserData.prenom.charAt(0);
+                    loadRecentChats();
+                }
+            } else { 
+                switchView('auth'); 
+                clearTypingTimers();
+            }
+        });
+
+        // --- RECENT CHATS ---
+        function loadRecentChats() {
+            if (unsubscribeRecentChats) unsubscribeRecentChats();
+            const q = query(collection(db, "chats"), where("participants", "array-contains", currentUserData.username));
+            unsubscribeRecentChats = onSnapshot(q, (snapshot) => {
+                const listContainer = document.getElementById('recent-chats-list');
+                listContainer.innerHTML = '';
+                
+                if(snapshot.empty) { 
+                    listContainer.innerHTML = '<div style="text-align:center; opacity:0.5;">Aucune discussion récente.</div>'; 
+                    return; 
+                }
+                
+                snapshot.forEach((docSnap) => {
+                    const chatData = docSnap.data();
+                    const otherUser = chatData.participants.find(p => p !== currentUserData.username);
+                    const div = document.createElement('div');
+                    div.className = 'user-card glass-panel';
+                    div.style.background = 'transparent';
+                    div.innerHTML = `<div class="avatar">${otherUser.charAt(0).toUpperCase()}</div><div><div style="font-weight:600">@${otherUser}</div><div style="font-size:0.8rem; opacity:0.7">Discuter</div></div>`;
+                    div.addEventListener('click', async () => {
+                        const userQ = query(collection(db, "users"), where("username", "==", otherUser));
+                        const userSnap = await getDocs(userQ);
+                        if(!userSnap.empty) openChat(userSnap.docs[0].data());
+                    });
+                    listContainer.appendChild(div);
+                });
+            });
+        }
+
+        // --- SEARCH ---
+        document.getElementById('btn-search').addEventListener('click', performSearch);
+        document.getElementById('search-input').addEventListener('keypress', (e) => { 
+            if(e.key === 'Enter') performSearch(); 
+        });
+
+        async function performSearch() {
+            const username = document.getElementById('search-input').value.trim().toLowerCase();
+            const resultsDiv = document.getElementById('search-results');
+            if (!username) return;
+            resultsDiv.innerHTML = '<div style="text-align:center; padding:10px;">Recherche...</div>';
+            try {
+                const q = query(collection(db, "users"), where("username", "==", username));
+                const querySnapshot = await getDocs(q);
+                resultsDiv.innerHTML = '';
+                if (querySnapshot.empty) { 
+                    resultsDiv.innerHTML = '<div style="text-align:center;">Aucun utilisateur trouvé</div>'; 
+                    return; 
+                }
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.uid === currentUserData.uid) return;
+                    const div = document.createElement('div');
+                    div.className = 'user-card glass-panel';
+                    div.innerHTML = `<div class="avatar">${data.prenom.charAt(0)}</div><div><div style="font-weight:600">${data.prenom}</div><div style="font-size:0.8rem; opacity:0.7">@${data.username}</div></div>`;
+                    div.addEventListener('click', () => openChat(data));
+                    resultsDiv.appendChild(div);
+                });
+            } catch (e) { 
+                resultsDiv.innerHTML = '<div style="text-align:center; color:red;">Erreur</div>'; 
+            }
+        }
+
+        // --- CHAT ROOM CORE LOGIC ---
+        function getChatId(u1, u2) { 
+            return [u1, u2].sort().join('_'); 
+        }
+
+        async function openChat(partnerData) {
+            chatPartnerUsername = partnerData.username;
+            currentChatId = getChatId(currentUserData.username, chatPartnerUsername);
+            
+            document.getElementById('chat-username').textContent = partnerData.prenom;
+            document.getElementById('chat-avatar').textContent = partnerData.prenom.charAt(0);
+            
+            cancelReply();
+            clearTypingTimers();
+            
+            messagesContainer.innerHTML = '';
+            
+            typingBubbleElement = document.createElement('div');
+            typingBubbleElement.className = 'typing-bubble';
+            typingBubbleElement.innerHTML = `
+                <div class="typing-dots-container">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            `;
+            messagesContainer.appendChild(typingBubbleElement);
+            
+            switchView('room');
+            listenToMessages();
+            listenForTyping();
+
+            await setDoc(doc(db, "chats", currentChatId), { 
+                participants: [currentUserData.username, chatPartnerUsername],
+                typing: {
+                    [currentUserData.username]: false,
+                    [chatPartnerUsername]: false
+                }
+            }, { merge: true });
+        }
+
+        document.getElementById('btn-back-chat').addEventListener('click', () => {
+            if(unsubscribeMessages) unsubscribeMessages();
+            if(unsubscribeTyping) unsubscribeTyping();
+            clearTypingTimers();
+            cancelReply();
+            switchView('search');
+        });
+
+        function clearTypingTimers() {
+            if (typingTimeout) clearTimeout(typingTimeout);
+            if (typingInactivityTimer) clearTimeout(typingInactivityTimer);
+            typingTimeout = null;
+            typingInactivityTimer = null;
+        }
+
+        // --- 1. LISTEN TO MESSAGES ---
+        function listenToMessages() {
+            const q = query(collection(db, `chats/${currentChatId}/messages`), orderBy("timestamp", "asc"));
+            
+            unsubscribeMessages = onSnapshot(q, (snapshot) => {
+                messagesContainer.innerHTML = ''; 
+                messagesContainer.appendChild(typingBubbleElement);
+
+                snapshot.forEach(doc => {
+                    appendMessageToDOM(doc.data());
+                });
+
+                scrollToBottom();
+            });
+        }
+
+        function appendMessageToDOM(msg) {
+            const isMe = msg.sender === currentUserData.username;
+            
+            const div = document.createElement('div');
+            div.className = `msg-bubble ${isMe ? 'mine' : 'theirs'}`;
+            div.dataset.sender = msg.sender;
+            div.dataset.text = msg.text;
+            div.dataset.senderName = msg.senderName;
+            
+            addSwipeListeners(div);
+            
+            let displayTime = "";
+            if (msg.timestamp) {
+                const date = msg.timestamp.toDate();
+                displayTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } else {
+                displayTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+
+            let replyHtml = '';
+            if (msg.replyTo) {
+                replyHtml = `
+                    <div class="reply-to-container">
+                        <div class="reply-to-sender">${msg.replyTo.senderName}</div>
+                        <div class="reply-to-text">${msg.replyTo.text}</div>
+                    </div>
+                `;
+            }
+
+            div.innerHTML = `
+                <span class="msg-sender">${isMe ? 'Moi' : msg.senderName}</span>
+                ${replyHtml}
+                ${msg.text}
+                <span class="msg-time">${displayTime}</span>
+            `;
+            
+            messagesContainer.insertBefore(div, typingBubbleElement);
+        }
+
+        // --- 2. SWIPE TO REPLY SYSTEM ---
+        function addSwipeListeners(element) {
+            let startX, startY, distX, distY;
+            const threshold = 50;
+            const allowedTime = 300;
+            let elapsedTime, startTime;
+            let isScrolling;
+
+            element.addEventListener('touchstart', function(e) {
+                if (replyingTo) return;
+                
+                const touch = e.touches[0];
+                startX = touch.pageX;
+                startY = touch.pageY;
+                startTime = new Date().getTime();
+                isScrolling = undefined;
+                e.preventDefault();
+            }, { passive: false });
+
+            element.addEventListener('touchmove', function(e) {
+                if (!startX || !startY || replyingTo) return;
+                
+                const touch = e.touches[0];
+                distX = touch.pageX - startX;
+                distY = touch.pageY - startY;
+                
+                if (typeof isScrolling === 'undefined') {
+                    isScrolling = Math.abs(distY) > Math.abs(distX);
+                }
+                
+                if (!isScrolling && distX < 0) {
+                    e.preventDefault();
+                    element.style.transform = `translateX(${Math.max(distX, -100)}px)`;
+                    element.classList.add('swiping');
+                }
+            }, { passive: false });
+
+            element.addEventListener('touchend', function(e) {
+                if (!startX || !startY || replyingTo || isScrolling) {
+                    resetSwipe(element);
+                    return;
+                }
+                
+                elapsedTime = new Date().getTime() - startTime;
+                
+                if (elapsedTime <= allowedTime && distX < -threshold) {
+                    const senderName = element.dataset.senderName;
+                    const text = element.dataset.text;
+                    const sender = element.dataset.sender;
+                    
+                    setReplyMode({
+                        text: text,
+                        senderName: senderName,
+                        sender: sender
+                    });
+                    
+                    scrollToBottom();
+                }
+                
+                resetSwipe(element);
+            });
+
+            function resetSwipe(el) {
+                el.style.transform = '';
+                el.classList.remove('swiping');
+                startX = null;
+                startY = null;
+                distX = null;
+                distY = null;
+            }
+        }
+
+        function setReplyMode(replyData) {
+            replyingTo = replyData;
+            replyPreviewSender.textContent = replyData.senderName;
+            replyPreviewText.textContent = replyData.text.length > 50 
+                ? replyData.text.substring(0, 50) + '...' 
+                : replyData.text;
+            
+            replyPreview.classList.add('active');
+            messagesContainer.classList.add('with-reply-preview');
+            msgInput.focus();
+            scrollToBottom();
+        }
+
+        function cancelReply() {
+            replyingTo = null;
+            replyPreview.classList.remove('active');
+            messagesContainer.classList.remove('with-reply-preview');
+        }
+
+        cancelReplyBtn.addEventListener('click', cancelReply);
+
+        // --- 3. SEND MESSAGE ---
+        document.getElementById('btn-send').addEventListener('click', sendMessage);
+        document.getElementById('msg-input').addEventListener('keypress', (e) => { 
+            if(e.key === 'Enter') sendMessage(); 
+        });
+
+        async function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const messageData = {
+                text: text,
+                sender: currentUserData.username,
+                senderName: currentUserData.prenom,
+                timestamp: serverTimestamp()
+            };
+
+            if (replyingTo) {
+                messageData.replyTo = {
+                    text: replyingTo.text,
+                    senderName: replyingTo.senderName,
+                    sender: replyingTo.sender
+                };
+            }
+
+            // Haptic feedback
+            hapticFeedback();
+            
+            await addDoc(collection(db, `chats/${currentChatId}/messages`), messageData);
+            
+            input.value = '';
+            if (replyingTo) {
+                cancelReply();
+            }
+            
+            scrollToBottom(); 
+        }
+
+        // --- 4. INDICATEUR DE SAISIE ---
+        document.getElementById('msg-input').addEventListener('input', () => { 
+            updateTypingStatus(true);
+            resetTypingInactivityTimer();
+        });
+
+        function resetTypingInactivityTimer() {
+            if (typingInactivityTimer) {
+                clearTimeout(typingInactivityTimer);
+            }
+            
+            typingInactivityTimer = setTimeout(() => {
+                updateTypingStatus(false);
+            }, TYPING_INACTIVITY_TIMEOUT);
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                updateTypingStatus(false);
+            }
+        });
+
+        window.addEventListener('beforeunload', () => {
+            updateTypingStatus(false);
+        });
+
+        async function updateTypingStatus(isTyping) {
+            if(!currentChatId || !currentUserData) return;
+            
+            try {
+                const chatRef = doc(db, "chats", currentChatId);
+                const updateData = {};
+                
+                updateData[`typing.${currentUserData.username}`] = isTyping;
+                
+                await updateDoc(chatRef, updateData);
+            } catch (error) {
+                console.error("Erreur mise à jour typing status:", error);
+            }
+        }
+
+        function listenForTyping() {
+            unsubscribeTyping = onSnapshot(doc(db, "chats", currentChatId), (docSnap) => {
+                if(docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    if (data.typing && data.typing[chatPartnerUsername] === true) {
+                        typingBubbleElement.style.display = 'flex';
+                        messagesContainer.appendChild(typingBubbleElement);
+                        scrollToBottom();
+                    } else {
+                        typingBubbleElement.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // --- PROFILE ---
+        document.getElementById('btn-save-profile').addEventListener('click', async () => {
+            const newName = document.getElementById('profile-username-edit').value.trim();
+            if(newName === currentUserData.username) return;
+            setBtnLoading('btn-save-profile', true);
+            try {
+                const q = query(collection(db, "users"), where("username", "==", newName));
+                const snap = await getDocs(q);
+                if(!snap.empty) throw new Error("Nom déjà pris");
+                await updateDoc(doc(db, "users", currentUserData.uid), { username: newName });
+                currentUserData.username = newName;
+                showToast("Profil mis à jour !");
+            } catch(e) { showToast(e.message); }
+            finally { setBtnLoading('btn-save-profile', false); }
+        });
+
+        // --- NAVIGATION ---
+        document.getElementById('nav-chat').addEventListener('click', () => switchView('search'));
+        document.getElementById('nav-profile').addEventListener('click', () => switchView('profile'));
+        document.getElementById('nav-settings').addEventListener('click', () => switchView('settings'));
+
+    </script>
+</body>
+</html>
