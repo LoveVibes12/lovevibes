@@ -15,7 +15,7 @@
             --glass-bg: rgba(255, 255, 255, 0.1);
             --glass-border: rgba(255, 255, 255, 0.2);
             --text-color: #ffffff;
-            --pink-accent: #ff69b4; /* Couleur pour moi (Droite) */
+            --pink-accent: #ff69b4; /* Couleur MOI */
             --input-bg: rgba(0, 0, 0, 0.2);
         }
 
@@ -155,13 +155,14 @@
             font-weight: bold; margin-right: 15px; color: #333;
         }
 
-        /* --- View: Chat Room & Messages --- */
+        /* --- View: Chat Room (CORRECTIONS STRUCTURE VISUELLE) --- */
         #chat-header {
             display: flex; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border);
-            margin-bottom: 15px; position: relative;
+            margin-bottom: 15px;
         }
         .back-btn { margin-right: 15px; font-size: 1.2rem; cursor: pointer; }
         
+        /* Container Flexbox pour l'alignement Droite/Gauche */
         #messages-container {
             flex: 1;
             overflow-y: auto;
@@ -169,21 +170,21 @@
             flex-direction: column;
             padding-bottom: 10px;
             scroll-behavior: smooth;
+            position: relative;
         }
 
-        /* --- DESIGN BULLES (ALIGNEMENT CORRIGÉ) --- */
+        /* --- BULLES DE MESSAGES & HEURE --- */
         .msg-bubble {
             max-width: 75%;
-            padding: 12px 15px;
+            padding: 10px 15px 20px 15px; /* Padding bas augmenté pour l'heure */
             border-radius: 18px;
-            position: relative;
+            position: relative; /* Nécessaire pour positionner l'heure en absolu */
             font-size: 0.95rem;
             animation: popIn 0.3s ease-out;
             margin-bottom: 8px;
-            /* Interdiction clic long */
+            word-wrap: break-word;
             user-select: none;
             -webkit-user-select: none;
-            -moz-user-select: none;
         }
 
         @keyframes popIn {
@@ -193,21 +194,31 @@
 
         /* MOI (Droite) */
         .msg-bubble.mine {
-            align-self: flex-end; /* Aligné à droite */
+            align-self: flex-end;
             background: var(--pink-accent);
-            border-bottom-right-radius: 2px; /* Coins spécifiques */
+            border-bottom-right-radius: 2px;
             color: white;
         }
 
         /* L'AUTRE (Gauche) */
         .msg-bubble.theirs {
-            align-self: flex-start; /* Aligné à gauche */
-            background: rgba(255, 255, 255, 0.15); /* Verre sombre/blanc neutre */
-            border-bottom-left-radius: 2px; /* Coins spécifiques */
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.15); /* Verre Gris */
+            border-bottom-left-radius: 2px;
             color: #f0f0f0;
         }
 
-        .msg-sender { font-size: 0.7rem; margin-bottom: 4px; opacity: 0.8; font-weight: bold; }
+        /* Heure (Style WhatsApp) */
+        .msg-time {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.7);
+            position: absolute;
+            bottom: 4px;
+            right: 8px;
+            pointer-events: none;
+        }
+
+        .msg-sender { font-size: 0.7rem; margin-bottom: 4px; opacity: 0.8; font-weight: bold; display: block; }
 
         .chat-input-wrapper { position: relative; margin-top: 10px; }
         .send-btn {
@@ -215,27 +226,40 @@
             background: none; border: none; color: var(--pink-accent); cursor: pointer; font-size: 1.2rem;
         }
 
-        /* --- INDICATEUR DE SAISIE À LA FIN DE LA LISTE --- */
-        #typing-indicator-wrapper {
-            display: none; /* Caché par défaut */
-            align-self: flex-start; /* Aligne à gauche comme un message reçu */
-            padding: 12px 15px;
+        /* --- INDICATEUR DE SAISIE (DYNAMIQUE & STYLE BULLE) --- */
+        /* Par défaut caché, injecté via JS */
+        .typing-bubble {
+            display: none; /* Géré par JS via display: flex */
+            align-self: flex-start; /* Aligné à gauche comme les messages reçus */
             background: rgba(255, 255, 255, 0.15);
             border-radius: 18px;
             border-bottom-left-radius: 2px;
+            padding: 12px 15px;
+            max-width: 60px;
             margin-bottom: 8px;
             animation: popIn 0.3s ease-out;
         }
 
-        .typing-dots { display: flex; align-items: center; height: 10px; }
-        .typing-dots span {
-            display: block; width: 6px; height: 6px; background-color: rgba(255,255,255,0.7);
-            border-radius: 50%; margin: 0 2px;
+        .typing-dots-container {
+            display: flex;
+            align-items: center;
+            height: 15px;
+        }
+        
+        .dot {
+            width: 6px; height: 6px;
+            background-color: rgba(255,255,255,0.7);
+            border-radius: 50%;
+            margin: 0 2px;
             animation: bounce 1.4s infinite ease-in-out both;
         }
-        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
 
         /* --- Bottom Navigation --- */
         .bottom-nav {
@@ -310,16 +334,10 @@
                 </div>
             </div>
             
-            <!-- Container pour les messages ET l'indicateur -->
+            <!-- Container principal des messages (Flex Column) -->
             <div id="messages-container">
                 <!-- Les messages s'affichent ici -->
-                
-                <!-- Indicateur de saisie placé physiquement à la fin -->
-                <div id="typing-indicator-wrapper">
-                    <div class="typing-dots">
-                        <span></span><span></span><span></span>
-                    </div>
-                </div>
+                <!-- L'indicateur de saisie sera injecté ici en JS -->
             </div>
 
             <div class="chat-input-wrapper">
@@ -382,6 +400,9 @@
         let unsubscribeTyping = null;
         let unsubscribeRecentChats = null;
 
+        // Référence pour l'indicateur de saisie (créé dynamiquement)
+        let typingBubbleElement = null;
+
         // --- DOM ---
         const views = {
             auth: document.getElementById('view-auth'),
@@ -391,7 +412,7 @@
         };
         const nav = document.getElementById('main-nav');
         const toastEl = document.getElementById('toast');
-        const typingIndicator = document.getElementById('typing-indicator-wrapper');
+        const messagesContainer = document.getElementById('messages-container');
 
         // --- UTILS ---
         function showToast(msg) {
@@ -415,13 +436,15 @@
         function switchView(viewName) {
             Object.values(views).forEach(el => el.classList.remove('active'));
             views[viewName].classList.add('active');
-
             if (viewName === 'search' || viewName === 'profile') nav.style.display = 'flex';
             else nav.style.display = 'none';
-
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             if(viewName === 'search') document.getElementById('nav-chat').classList.add('active');
             if(viewName === 'profile') document.getElementById('nav-profile').classList.add('active');
+        }
+
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         // --- AUTH ---
@@ -452,9 +475,7 @@
 
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
                 const user = cred.user;
-                await setDoc(doc(db, "users", user.uid), {
-                    prenom: prenom, username: username, email: email
-                });
+                await setDoc(doc(db, "users", user.uid), { prenom: prenom, username: username, email: email });
                 await updateProfile(user, { displayName: prenom });
                 showToast("Inscription réussie !");
                 switchView('search');
@@ -538,7 +559,7 @@
             } catch (e) { resultsDiv.innerHTML = '<div style="text-align:center; color:red;">Erreur</div>'; }
         }
 
-        // --- CHAT ROOM ---
+        // --- CHAT ROOM CORE LOGIC ---
         function getChatId(u1, u2) { return [u1, u2].sort().join('_'); }
 
         async function openChat(partnerData) {
@@ -547,10 +568,20 @@
             
             document.getElementById('chat-username').textContent = partnerData.prenom;
             document.getElementById('chat-avatar').textContent = partnerData.prenom.charAt(0);
-            document.getElementById('messages-container').innerHTML = '';
             
-            // Réinsérer l'indicateur de saisie vide dans le DOM après nettoyage
-            document.getElementById('messages-container').appendChild(typingIndicator);
+            // 1. Nettoyer le container
+            messagesContainer.innerHTML = '';
+            
+            // 2. Créer dynamiquement l'indicateur de saisie (Bulle grise animée)
+            typingBubbleElement = document.createElement('div');
+            typingBubbleElement.className = 'typing-bubble';
+            typingBubbleElement.innerHTML = `
+                <div class="typing-dots-container">
+                    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                </div>
+            `;
+            // On l'ajoute au container (mais caché par défaut via CSS display:none)
+            messagesContainer.appendChild(typingBubbleElement);
             
             switchView('room');
             listenToMessages();
@@ -565,49 +596,56 @@
             switchView('search');
         });
 
-        // --- 1. CORRECTION ORDRE DES MESSAGES & LOGIQUE D'AFFICHAGE ---
+        // --- 1. LISTEN TO MESSAGES (CHRONOLOGIE & HEURE) ---
         function listenToMessages() {
-            const container = document.getElementById('messages-container');
-            
-            // Query triée par timestamp croissant (ASC)
+            // Query avec orderBy('timestamp', 'asc') pour garantir l'ordre
             const q = query(collection(db, `chats/${currentChatId}/messages`), orderBy("timestamp", "asc"));
             
             unsubscribeMessages = onSnapshot(q, (snapshot) => {
-                // On ne vide pas tout le container à chaque update pour préserver le scroll si possible,
-                // mais pour garantir l'ordre parfait et éviter les doublons dans une SPA simple, on reconstruit.
-                // On retire tout sauf l'indicateur de saisie.
-                container.innerHTML = '';
-                container.appendChild(typingIndicator);
+                // On vide tout pour reconstruire dans l'ordre chronologique exact
+                // Note: Dans une app très optimisée on ferait du diffing, mais ici c'est plus sûr pour corriger le bug.
+                // On retire tout sauf l'indicateur de saisie
+                messagesContainer.innerHTML = ''; 
+                messagesContainer.appendChild(typingBubbleElement);
 
                 snapshot.forEach(doc => {
                     appendMessageToDOM(doc.data());
                 });
 
-                // Scroll automatique en bas après chargement
                 scrollToBottom();
             });
         }
 
         function appendMessageToDOM(msg) {
-            const container = document.getElementById('messages-container');
             const isMe = msg.sender === currentUserData.username;
             
+            // Construction de la bulle
             const div = document.createElement('div');
             div.className = `msg-bubble ${isMe ? 'mine' : 'theirs'}`;
-            div.innerHTML = `<div class="msg-sender">${isMe ? 'Moi' : msg.senderName}</div>${msg.text}`;
+            
+            // Gestion du timestamp (Heure)
+            let displayTime = "";
+            if (msg.timestamp) {
+                // Si c'est un Timestamp Firestore
+                const date = msg.timestamp.toDate();
+                displayTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } else {
+                // Fallback si timestamp null (latence locale)
+                displayTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+
+            // Structure HTML interne
+            div.innerHTML = `
+                <span class="msg-sender">${isMe ? 'Moi' : msg.senderName}</span>
+                ${msg.text}
+                <span class="msg-time">${displayTime}</span>
+            `;
             
             // Insérer AVANT l'indicateur de saisie pour que l'indicateur reste en bas
-            container.insertBefore(div, typingIndicator);
+            messagesContainer.insertBefore(div, typingBubbleElement);
         }
 
-        function scrollToBottom() {
-            const container = document.getElementById('messages-container');
-            setTimeout(() => {
-                container.scrollTop = container.scrollHeight;
-            }, 50); // Petit délai pour le rendu DOM
-        }
-
-        // --- 2. ENVOI AVEC SERVER TIMESTAMP ---
+        // --- 2. SEND MESSAGE (SERVER TIMESTAMP) ---
         document.getElementById('btn-send').addEventListener('click', sendMessage);
         document.getElementById('msg-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
 
@@ -616,24 +654,25 @@
             const text = input.value.trim();
             if(!text) return;
 
+            // Utilisation de serverTimestamp() OBLIGATOIRE
             await addDoc(collection(db, `chats/${currentChatId}/messages`), {
                 text: text,
                 sender: currentUserData.username,
                 senderName: currentUserData.prenom,
-                timestamp: serverTimestamp() // Utilisation de serverTimestamp() pour la précision
+                timestamp: serverTimestamp() 
             });
             input.value = '';
-            scrollToBottom(); // Scroll immédiat après envoi
+            scrollToBottom(); 
         }
 
-        // --- 3. INDICATEUR DE SAISIE (LOGIQUE) ---
+        // --- 3. INDICATEUR DE SAISIE (LOGIQUE DYNAMIQUE) ---
         document.getElementById('msg-input').addEventListener('input', () => { updateTypingStatus(); });
 
         async function updateTypingStatus() {
             if(!currentChatId) return;
             await updateDoc(doc(db, "chats", currentChatId), {
-                [`typing.${currentUserData.username}`]: Date.now() // On utilise Date.now() pour le typing (local)
-            }).catch(() => {});
+                [`typing.${currentUserData.username}`]: Date.now()
+            }).catch(() => {}); // Ignore error if doc doesn't exist yet
         }
 
         function listenToTyping() {
@@ -644,10 +683,10 @@
                     
                     // Afficher si l'event date de moins de 3 secondes
                     if(partnerTypingTime && (Date.now() - partnerTypingTime < 3000)) {
-                        typingIndicator.style.display = 'flex';
-                        scrollToBottom(); // Scroll pour voir l'indicateur
+                        typingBubbleElement.style.display = 'flex';
+                        scrollToBottom(); // Scroll pour voir l'animation
                     } else {
-                        typingIndicator.style.display = 'none';
+                        typingBubbleElement.style.display = 'none';
                     }
                 }
             });
