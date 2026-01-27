@@ -1,14 +1,15 @@
 {
   "name": "Love Vibes",
   "short_name": "LoveVibes",
-  "description": "Application de chat romantique avec design moderne et notifications",
-  "start_url": "/",
+  "description": "Application de chat romantique",
+  "theme_color": "#FF69B4",
+  "background_color": "#000000",
   "display": "standalone",
-  "background_color": "#ff69b4",
-  "theme_color": "#ff69b4",
   "orientation": "portrait",
   "scope": "/",
-  "lang": "fr",
+  "start_url": "/",
+  "id": "/",
+  "categories": ["social", "entertainment"],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -19,26 +20,22 @@
     {
       "src": "/icons/icon-96x96.png",
       "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-128x128.png",
       "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-144x144.png",
       "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-152x152.png",
       "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-192x192.png",
@@ -49,49 +46,22 @@
     {
       "src": "/icons/icon-384x384.png",
       "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/screenshot1.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Page d'accueil Love Vibes"
-    },
-    {
-      "src": "/screenshots/screenshot2.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Interface de chat"
-    }
-  ],
+  "screenshots": [],
   "shortcuts": [
     {
-      "name": "Nouveau chat",
+      "name": "Nouvelle discussion",
       "short_name": "Chat",
-      "description": "Commencer une nouvelle conversation",
+      "description": "Commencer une nouvelle discussion",
       "url": "/?newchat",
-      "icons": [{ "src": "/icons/chat-icon.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Profil",
-      "short_name": "Profil",
-      "description": "Voir et modifier votre profil",
-      "url": "/?profile",
-      "icons": [{ "src": "/icons/profile-icon.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
-  ],
-  "categories": ["social", "lifestyle", "entertainment"],
-  "prefer_related_applications": false,
-  "related_applications": []
+  ]
 }
