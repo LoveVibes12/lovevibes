@@ -17,8 +17,8 @@
     <!-- Apple Touch Icons -->
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167x167.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192x192.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
@@ -60,6 +60,7 @@
             overflow: hidden;
             position: fixed;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior: none; /* Empêche le scroll-rebond */
         }
 
         body {
@@ -1178,7 +1179,7 @@
 
     <!-- Audio pour les notifications -->
     <audio id="notification-sound" preload="auto">
-        <source src="https://assets.mixkit.co/active_storage/sfx/286/286-preview.mp3" type="audio/mpeg">
+        <source src="/notification.mp3" type="audio/mpeg">
     </audio>
 
     <!-- Service Worker Registration -->
@@ -1188,9 +1189,29 @@
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/sw.js').then(function(registration) {
                     console.log('ServiceWorker enregistré avec succès:', registration.scope);
+                    
+                    // Vérifier les mises à jour du Service Worker
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        console.log('Nouveau Service Worker trouvé:', newWorker);
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    console.log('Nouveau contenu disponible !');
+                                    // Ici vous pourriez afficher un prompt pour recharger
+                                }
+                            }
+                        });
+                    });
                 }).catch(function(error) {
                     console.log('Échec de l\'enregistrement du ServiceWorker:', error);
                 });
+                
+                // Vérifier si la page a été ouverte par un Service Worker
+                if (navigator.serviceWorker.controller) {
+                    console.log('Cette page est contrôlée par un Service Worker');
+                }
             });
         }
         
@@ -1257,11 +1278,123 @@
                 installAppBtn.style.display = 'none';
             }
             deferredPrompt = null;
+            console.log('Love Vibes a été installé avec succès');
         });
         
         // Vérifier si l'app est déjà en mode standalone
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
             console.log('Application en mode standalone');
+        }
+        
+        // Gestion des permissions de notification au premier clic
+        function setupNotificationPermissionHandler() {
+            const requestPermissionBtn = document.getElementById('btn-request-permission');
+            const toggleNotifications = document.getElementById('toggle-notifications');
+            
+            if (requestPermissionBtn) {
+                requestPermissionBtn.addEventListener('click', async () => {
+                    try {
+                        const permission = await Notification.requestPermission();
+                        if (permission === 'granted') {
+                            showToast('Notifications autorisées !');
+                            if (toggleNotifications) {
+                                toggleNotifications.checked = true;
+                                localStorage.setItem('loveVibes_notificationsEnabled', 'true');
+                            }
+                            
+                            // Enregistrer le service worker pour les notifications
+                            if ('serviceWorker' in navigator) {
+                                const registration = await navigator.serviceWorker.ready;
+                                // Utiliser votre propre clé VAPID ici
+                                const vapidKey = 'BLlK6SwxVAPY0k-3HInqlgj6aPE58dY4sxqGk10mRgrLpRhAe_BmH-qcuPZNN1X4z7tsjTSABgHmlBmDvglP9I0';
+                                try {
+                                    const subscription = await registration.pushManager.subscribe({
+                                        userVisibleOnly: true,
+                                        applicationServerKey: vapidKey
+                                    });
+                                    console.log('Abonnement aux notifications:', subscription);
+                                    // Envoyer l'abonnement à votre serveur
+                                } catch (error) {
+                                    console.error('Erreur lors de l\'abonnement:', error);
+                                }
+                            }
+                        } else {
+                            showToast('Notifications refusées');
+                            if (toggleNotifications) {
+                                toggleNotifications.checked = false;
+                                localStorage.setItem('loveVibes_notificationsEnabled', 'false');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Erreur de permission:', error);
+                        showToast('Erreur lors de la demande de permission');
+                    }
+                });
+            }
+        }
+        
+        // Écouter les messages du Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                console.log('Message du Service Worker:', event.data);
+                
+                if (event.data && event.data.type === 'PLAY_NOTIFICATION_SOUND') {
+                    const notificationSound = document.getElementById('notification-sound');
+                    const soundEnabled = localStorage.getItem('loveVibes_soundEnabled') !== 'false';
+                    
+                    if (soundEnabled && notificationSound) {
+                        notificationSound.currentTime = 0;
+                        notificationSound.play().catch(e => console.log('Erreur de lecture du son:', e));
+                    }
+                }
+            });
+        }
+        
+        // Initialiser les gestionnaires d'événements après le chargement
+        window.addEventListener('load', () => {
+            setupNotificationPermissionHandler();
+            
+            // Charger les couleurs sauvegardées
+            loadSavedColors();
+            
+            // Charger les préférences de notification
+            loadNotificationPreferences();
+        });
+        
+        // Fonctions utilitaires pour les couleurs
+        function loadSavedColors() {
+            const savedMyColor = localStorage.getItem('loveVibes_myColor');
+            const savedPartnerColor = localStorage.getItem('loveVibes_partnerColor');
+            
+            if (savedMyColor) {
+                document.documentElement.style.setProperty('--my-chat-color', savedMyColor);
+            }
+            if (savedPartnerColor) {
+                document.documentElement.style.setProperty('--partner-chat-color', savedPartnerColor);
+            }
+        }
+        
+        function loadNotificationPreferences() {
+            const notificationsEnabled = localStorage.getItem('loveVibes_notificationsEnabled') === 'true';
+            const soundEnabled = localStorage.getItem('loveVibes_soundEnabled') !== 'false';
+            const vibrationEnabled = localStorage.getItem('loveVibes_vibrationEnabled') !== 'false';
+            
+            const toggleNotifications = document.getElementById('toggle-notifications');
+            const toggleSound = document.getElementById('toggle-notification-sound');
+            const toggleVibration = document.getElementById('toggle-vibration');
+            
+            if (toggleNotifications) toggleNotifications.checked = notificationsEnabled;
+            if (toggleSound) toggleSound.checked = soundEnabled;
+            if (toggleVibration) toggleVibration.checked = vibrationEnabled;
+        }
+        
+        function showToast(msg) {
+            const toastEl = document.getElementById('toast');
+            if (toastEl) {
+                toastEl.textContent = msg;
+                toastEl.style.display = 'block';
+                setTimeout(() => toastEl.style.display = 'none', 3000);
+            }
         }
     </script>
 
@@ -1307,7 +1440,7 @@
         let typingTimeout = null;
         let typingInactivityTimer = null;
         let replyingTo = null;
-        const TYPING_INACTIVITY_TIMEOUT = 4000;
+        const TYPING_INACTIVITY_TIMEOUT = 4000; // 4 secondes comme demandé
 
         // Référence pour l'indicateur de saisie
         let typingBubbleElement = null;
@@ -1577,8 +1710,6 @@
                 
                 if (currentToken) {
                     console.log('Token FCM:', currentToken);
-                    // Ici, vous enverriez normalement ce token à votre backend
-                    // pour envoyer des notifications à cet appareil
                     localStorage.setItem('loveVibes_fcmToken', currentToken);
                     
                     // Écouter les messages en arrière-plan
@@ -1604,7 +1735,7 @@
             const options = {
                 body: payload.notification?.body || 'Nouveau message',
                 icon: '/icons/icon-192x192.png',
-                badge: '/icons/icon-192x192.png',
+                badge: '/icons/badge-72x72.png',
                 vibrate: [200, 100, 200],
                 tag: 'love-vibes-notification',
                 renotify: true,
@@ -1711,7 +1842,7 @@
         function hapticFeedback() {
             const vibrationEnabled = localStorage.getItem('loveVibes_vibrationEnabled') !== 'false';
             if (vibrationEnabled && 'vibrate' in navigator) {
-                navigator.vibrate(50);
+                navigator.vibrate(50); // 50ms comme demandé
             }
         }
 
@@ -2105,7 +2236,7 @@
             }
 
             // Haptic feedback
-            hapticFeedback();
+            hapticFeedback(); // Vibrate 50ms comme demandé
             
             await addDoc(collection(db, `chats/${currentChatId}/messages`), messageData);
             
@@ -2117,7 +2248,7 @@
             scrollToBottom(); 
         }
 
-        // --- 4. INDICATEUR DE SAISIE ---
+        // --- 4. INDICATEUR DE SAISIE (Corrigé) ---
         document.getElementById('msg-input').addEventListener('input', () => { 
             updateTypingStatus(true);
             resetTypingInactivityTimer();
@@ -2130,7 +2261,7 @@
             
             typingInactivityTimer = setTimeout(() => {
                 updateTypingStatus(false);
-            }, TYPING_INACTIVITY_TIMEOUT);
+            }, TYPING_INACTIVITY_TIMEOUT); // 4 secondes comme demandé
         }
 
         document.addEventListener('visibilitychange', () => {
