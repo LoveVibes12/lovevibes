@@ -158,13 +158,27 @@
             display: none;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
-            height: 100%;
             flex-direction: column;
         }
         
         .view.active {
             display: flex;
             opacity: 1;
+        }
+
+        /* --- CORRECTION BUG SCROLL MOBILE --- */
+        /* Pages Paramètres et Profil avec scroll vertical autorisé */
+        #view-settings, #view-profile {
+            min-height: 100vh;
+            height: auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 100px; /* Espace pour la navigation du bas */
+        }
+
+        .settings-container, .profile-content {
+            flex: 1;
+            overflow-y: auto;
         }
 
         /* --- Typography --- */
@@ -177,7 +191,7 @@
             font-weight: 700;
         }
 
-        input {
+        input, textarea {
             width: 100%;
             padding: 15px;
             margin-bottom: 15px;
@@ -188,9 +202,10 @@
             font-family: 'Poppins', sans-serif;
             transition: 0.3s;
             font-size: 16px; /* Évite le zoom sur iOS */
+            resize: vertical;
         }
 
-        input:focus {
+        input:focus, textarea:focus {
             background: rgba(255, 255, 255, 0.15);
             border-color: var(--pink-accent);
         }
@@ -768,6 +783,89 @@
             transform: translateX(24px);
         }
 
+        /* --- NOUVEAU STYLE POUR LA PAGE PROFIL --- */
+        .profile-content {
+            padding: 30px;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .profile-section {
+            margin-bottom: 25px;
+        }
+
+        .profile-section-title {
+            font-size: 1rem;
+            color: var(--pink-accent);
+            margin-bottom: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-section-title i {
+            font-size: 0.9rem;
+        }
+
+        .bio-container {
+            position: relative;
+        }
+
+        .bio-edit-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 5px;
+        }
+
+        .stats-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--pink-accent);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
         /* --- Bottom Navigation --- */
         .bottom-nav {
             position: fixed; 
@@ -825,6 +923,89 @@
         @keyframes slideUp {
             from { transform: translate(-50%, 100%); opacity: 0; }
             to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        /* iOS Install Modal */
+        #ios-install-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        #ios-install-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .ios-install-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            animation: popIn 0.3s ease;
+        }
+
+        .ios-install-icon {
+            font-size: 3rem;
+            color: var(--pink-accent);
+            margin-bottom: 20px;
+        }
+
+        .ios-install-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .ios-install-steps {
+            text-align: left;
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+
+        .ios-install-step {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .ios-install-step i {
+            color: var(--pink-accent);
+            margin-top: 3px;
+        }
+
+        .close-ios-modal {
+            margin-top: 20px;
+            background: var(--pink-accent);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .close-ios-modal:active {
+            transform: scale(0.98);
         }
 
         .install-prompt-content {
@@ -900,6 +1081,10 @@
             .splash-logo {
                 font-size: 2.8rem;
             }
+            
+            .stats-card {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 480px) {
@@ -909,6 +1094,10 @@
             
             .color-picker-container {
                 grid-template-columns: 1fr;
+            }
+            
+            .profile-content, .settings-container {
+                padding: 20px 15px;
             }
         }
 
@@ -938,7 +1127,7 @@
         <div class="splash-spinner"></div>
     </div>
 
-    <!-- Install Prompt -->
+    <!-- Install Prompt pour Android/PC -->
     <div id="install-prompt">
         <div class="install-prompt-content">
             <div class="install-icon">📱</div>
@@ -950,6 +1139,30 @@
         <div class="install-actions">
             <button class="install-btn secondary" id="install-later">Plus tard</button>
             <button class="install-btn primary" id="install-now">Installer</button>
+        </div>
+    </div>
+
+    <!-- Modal d'installation iOS -->
+    <div id="ios-install-modal">
+        <div class="ios-install-content">
+            <div class="ios-install-icon">📱</div>
+            <h3 class="ios-install-title">Installer Love Vibes</h3>
+            <p>Pour installer l'application sur votre iPhone :</p>
+            <div class="ios-install-steps">
+                <div class="ios-install-step">
+                    <i class="fas fa-share"></i>
+                    <span>Appuyez sur l'icône <strong>Partager</strong> (carré avec flèche vers le haut)</span>
+                </div>
+                <div class="ios-install-step">
+                    <i class="fas fa-plus"></i>
+                    <span>Faites défiler vers le bas et sélectionnez <strong>"Sur l'écran d'accueil"</strong></span>
+                </div>
+                <div class="ios-install-step">
+                    <i class="fas fa-check"></i>
+                    <span>Appuyez sur <strong>"Ajouter"</strong> en haut à droite</span>
+                </div>
+            </div>
+            <button class="close-ios-modal" id="close-ios-modal">J'ai compris</button>
         </div>
     </div>
 
@@ -1045,19 +1258,75 @@
             </div>
         </section>
 
-        <!-- VIEW: PROFILE -->
+        <!-- VIEW: PROFILE (REFONTE COMPLÈTE) -->
         <section id="view-profile" class="view">
             <div class="glass-panel profile-content">
                 <h1 class="title" style="font-size: 1.8rem;">Mon Profil</h1>
-                <div class="avatar" style="width: 80px; height: 80px; font-size: 2rem; margin-bottom: 20px;" id="my-avatar">M</div>
                 
-                <div style="width: 100%;">
-                    <label style="font-size: 0.9rem; opacity: 0.8;">Modifier Nom d'utilisateur</label>
-                    <input type="text" id="profile-username-edit">
+                <!-- Photo de profil -->
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div class="avatar" style="width: 100px; height: 100px; font-size: 2.5rem; margin: 0 auto 20px; background: linear-gradient(135deg, #ff69b4, #e73c7e);" id="my-avatar">M</div>
+                    <h2 style="font-size: 1.5rem; margin-bottom: 5px;" id="profile-display-name">Utilisateur</h2>
+                    <p style="opacity: 0.8; font-size: 0.9rem;" id="profile-username-display">@username</p>
+                </div>
+                
+                <!-- Section Bio/Statut -->
+                <div class="profile-section">
+                    <div class="profile-section-title">
+                        <i class="fas fa-heart"></i>
+                        <span>Statut / Bio</span>
+                    </div>
+                    <div class="bio-container">
+                        <textarea id="profile-bio" rows="3" placeholder="Ex: Amoureux de Wendy 🥰 | Développeur passionné | Fan de musique...">Amoureux de Wendy 🥰</textarea>
+                        <button class="bio-edit-btn" id="save-bio-btn" title="Enregistrer la bio">
+                            <i class="fas fa-save"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Carte Statistiques -->
+                <div class="profile-section">
+                    <div class="profile-section-title">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Statistiques</span>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stat-item">
+                            <div class="stat-value" id="member-since">2024</div>
+                            <div class="stat-label">Membre depuis</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="messages-sent">127</div>
+                            <div class="stat-label">Messages envoyés</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Informations personnelles -->
+                <div class="profile-section">
+                    <div class="profile-section-title">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Informations personnelles</span>
+                    </div>
+                    <label style="font-size: 0.9rem; opacity: 0.8; display: block; margin-bottom: 8px;">Nom d'utilisateur</label>
+                    <input type="text" id="profile-username-edit" placeholder="Nouveau nom d'utilisateur">
+                    
+                    <label style="font-size: 0.9rem; opacity: 0.8; display: block; margin-bottom: 8px; margin-top: 15px;">Adresse email</label>
+                    <input type="email" id="profile-email-edit" placeholder="Adresse email" readonly style="background: rgba(0,0,0,0.1);">
+                </div>
+                
+                <!-- Actions -->
+                <div class="profile-actions">
                     <button class="btn-primary" id="btn-save-profile">
-                        <div class="btn-loader"></div> <span>Enregistrer</span>
+                        <div class="btn-loader" id="profile-loader"></div> 
+                        <span>Enregistrer les modifications</span>
                     </button>
-                    <button class="btn-primary" id="btn-logout" style="background: #e73c7e; margin-top: 10px;">Déconnexion</button>
+                    <button class="btn-primary btn-secondary" id="btn-change-avatar">
+                        <i class="fas fa-camera"></i> Changer la photo de profil
+                    </button>
+                    <button class="btn-primary" id="btn-logout" style="background: linear-gradient(135deg, #e73c7e, #ff4757); margin-top: 10px;">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </button>
                 </div>
             </div>
         </section>
@@ -1182,8 +1451,135 @@
         <source src="/notification.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration et PWA Logic -->
     <script>
+        // ============================================
+        // PWA INSTALLATION LOGIC (Android + iOS)
+        // ============================================
+        
+        let deferredPrompt;
+        const installPrompt = document.getElementById('install-prompt');
+        const installNowBtn = document.getElementById('install-now');
+        const installLaterBtn = document.getElementById('install-later');
+        const installAppBtn = document.getElementById('btn-install-app');
+        const iosInstallModal = document.getElementById('ios-install-modal');
+        const closeIosModalBtn = document.getElementById('close-ios-modal');
+
+        // Détecter iOS
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        // Détecter si l'app est déjà installée
+        function isAppInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+
+        // Gérer l'installation pour Android/PC
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Afficher le bouton d'installation dans les paramètres
+            if (installAppBtn) {
+                installAppBtn.style.display = 'flex';
+                installAppBtn.innerHTML = '<i class="fas fa-download"></i> Installer l\'application';
+                
+                // Gérer le clic sur le bouton d'installation
+                installAppBtn.onclick = handleInstall;
+            }
+            
+            // Afficher le prompt automatiquement après 5 secondes (Android/PC uniquement)
+            setTimeout(() => {
+                if (deferredPrompt && !localStorage.getItem('installPromptDismissed') && !isIOS()) {
+                    installPrompt.style.display = 'block';
+                }
+            }, 5000);
+        });
+        
+        // Gérer l'installation pour iOS
+        function showIOSInstallInstructions() {
+            if (iosInstallModal && !isAppInstalled()) {
+                iosInstallModal.classList.add('active');
+            }
+        }
+        
+        // Gérer l'installation
+        function handleInstall() {
+            if (isIOS()) {
+                showIOSInstallInstructions();
+                return;
+            }
+            
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Utilisateur a installé la PWA');
+                        showToast('Application installée avec succès!');
+                        installPrompt.style.display = 'none';
+                        if (installAppBtn) {
+                            installAppBtn.style.display = 'none';
+                        }
+                    }
+                    deferredPrompt = null;
+                });
+            } else if (isIOS()) {
+                showIOSInstallInstructions();
+            }
+        }
+        
+        // Gestion des boutons d'installation
+        if (installNowBtn) {
+            installNowBtn.addEventListener('click', handleInstall);
+        }
+        
+        if (installAppBtn) {
+            installAppBtn.addEventListener('click', handleInstall);
+        }
+        
+        if (installLaterBtn) {
+            installLaterBtn.addEventListener('click', () => {
+                installPrompt.style.display = 'none';
+                localStorage.setItem('installPromptDismissed', 'true');
+            });
+        }
+        
+        if (closeIosModalBtn) {
+            closeIosModalBtn.addEventListener('click', () => {
+                iosInstallModal.classList.remove('active');
+            });
+        }
+        
+        // Masquer le prompt si l'app est déjà installée
+        window.addEventListener('appinstalled', () => {
+            installPrompt.style.display = 'none';
+            if (installAppBtn) {
+                installAppBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+            console.log('Love Vibes a été installé avec succès');
+        });
+        
+        // Ajuster l'affichage du bouton d'installation selon la plateforme
+        window.addEventListener('load', () => {
+            if (installAppBtn) {
+                if (isIOS() && !isAppInstalled()) {
+                    installAppBtn.style.display = 'flex';
+                    installAppBtn.innerHTML = '<i class="fas fa-mobile-alt"></i> Installer sur l\'écran d\'accueil (iOS)';
+                } else if (!isAppInstalled()) {
+                    installAppBtn.style.display = 'flex';
+                } else {
+                    installAppBtn.style.display = 'none';
+                }
+            }
+        });
+
+        // ============================================
+        // SERVICE WORKER REGISTRATION
+        // ============================================
+        
         // Enregistrer le Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -1214,79 +1610,12 @@
                 }
             });
         }
+
+        // ============================================
+        // NOTIFICATIONS PUSH
+        // ============================================
         
-        // Gérer l'installation de la PWA
-        let deferredPrompt;
-        const installPrompt = document.getElementById('install-prompt');
-        const installNowBtn = document.getElementById('install-now');
-        const installLaterBtn = document.getElementById('install-later');
-        const installAppBtn = document.getElementById('btn-install-app');
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Afficher le bouton d'installation dans les paramètres
-            if (installAppBtn) {
-                installAppBtn.style.display = 'flex';
-            }
-            
-            // Afficher le prompt automatiquement après 5 secondes
-            setTimeout(() => {
-                if (deferredPrompt && !localStorage.getItem('installPromptDismissed')) {
-                    installPrompt.style.display = 'block';
-                }
-            }, 5000);
-        });
-        
-        // Gérer l'installation
-        function handleInstall() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('Utilisateur a installé la PWA');
-                        installPrompt.style.display = 'none';
-                        if (installAppBtn) {
-                            installAppBtn.style.display = 'none';
-                        }
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        }
-        
-        if (installNowBtn) {
-            installNowBtn.addEventListener('click', handleInstall);
-        }
-        
-        if (installAppBtn) {
-            installAppBtn.addEventListener('click', handleInstall);
-        }
-        
-        if (installLaterBtn) {
-            installLaterBtn.addEventListener('click', () => {
-                installPrompt.style.display = 'none';
-                localStorage.setItem('installPromptDismissed', 'true');
-            });
-        }
-        
-        // Masquer le prompt si l'app est déjà installée
-        window.addEventListener('appinstalled', () => {
-            installPrompt.style.display = 'none';
-            if (installAppBtn) {
-                installAppBtn.style.display = 'none';
-            }
-            deferredPrompt = null;
-            console.log('Love Vibes a été installé avec succès');
-        });
-        
-        // Vérifier si l'app est déjà en mode standalone
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-            console.log('Application en mode standalone');
-        }
-        
-        // Gestion des permissions de notification au premier clic
+        // Gestion des permissions de notification
         function setupNotificationPermissionHandler() {
             const requestPermissionBtn = document.getElementById('btn-request-permission');
             const toggleNotifications = document.getElementById('toggle-notifications');
@@ -1350,6 +1679,19 @@
             });
         }
         
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        
+        function showToast(msg) {
+            const toastEl = document.getElementById('toast');
+            if (toastEl) {
+                toastEl.textContent = msg;
+                toastEl.style.display = 'block';
+                setTimeout(() => toastEl.style.display = 'none', 3000);
+            }
+        }
+        
         // Initialiser les gestionnaires d'événements après le chargement
         window.addEventListener('load', () => {
             setupNotificationPermissionHandler();
@@ -1359,6 +1701,9 @@
             
             // Charger les préférences de notification
             loadNotificationPreferences();
+            
+            // Initialiser les statistiques du profil
+            initializeProfileStats();
         });
         
         // Fonctions utilitaires pour les couleurs
@@ -1388,13 +1733,33 @@
             if (toggleVibration) toggleVibration.checked = vibrationEnabled;
         }
         
-        function showToast(msg) {
-            const toastEl = document.getElementById('toast');
-            if (toastEl) {
-                toastEl.textContent = msg;
-                toastEl.style.display = 'block';
-                setTimeout(() => toastEl.style.display = 'none', 3000);
+        // Initialiser les statistiques du profil
+        function initializeProfileStats() {
+            // Date d'inscription (simulée)
+            const memberSince = localStorage.getItem('loveVibes_memberSince');
+            if (!memberSince) {
+                const today = new Date();
+                const formattedDate = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
+                localStorage.setItem('loveVibes_memberSince', formattedDate);
+                document.getElementById('member-since').textContent = formattedDate;
+            } else {
+                document.getElementById('member-since').textContent = memberSince;
             }
+            
+            // Messages envoyés (simulés)
+            const messagesSent = localStorage.getItem('loveVibes_messagesSent') || '127';
+            document.getElementById('messages-sent').textContent = messagesSent;
+            
+            // Bio sauvegardée
+            const savedBio = localStorage.getItem('loveVibes_bio') || 'Amoureux de Wendy 🥰';
+            document.getElementById('profile-bio').value = savedBio;
+            
+            // Sauvegarder la bio
+            document.getElementById('save-bio-btn').addEventListener('click', () => {
+                const bioText = document.getElementById('profile-bio').value;
+                localStorage.setItem('loveVibes_bio', bioText);
+                showToast('Bio enregistrée !');
+            });
         }
     </script>
 
@@ -1403,7 +1768,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, query, where, getDocs, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging.js";
 
         // --- CONFIGURATION ---
         const firebaseConfig = {
@@ -1419,16 +1783,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        let messaging = null;
-
-        // Initialiser Firebase Messaging si supporté
-        if ('Notification' in window && 'serviceWorker' in navigator) {
-            try {
-                messaging = getMessaging(app);
-            } catch (error) {
-                console.warn('Firebase Messaging non initialisé:', error);
-            }
-        }
 
         // --- STATE ---
         let currentUserData = null;
@@ -1440,7 +1794,7 @@
         let typingTimeout = null;
         let typingInactivityTimer = null;
         let replyingTo = null;
-        const TYPING_INACTIVITY_TIMEOUT = 4000; // 4 secondes comme demandé
+        const TYPING_INACTIVITY_TIMEOUT = 4000;
 
         // Référence pour l'indicateur de saisie
         let typingBubbleElement = null;
@@ -1635,161 +1989,6 @@
             resetColorsBtn.addEventListener('click', resetColors);
         }
 
-        // --- NOTIFICATIONS PUSH ---
-        const notificationToggle = document.getElementById('toggle-notifications');
-        const notificationSoundToggle = document.getElementById('toggle-notification-sound');
-        const vibrationToggle = document.getElementById('toggle-vibration');
-        const requestPermissionBtn = document.getElementById('btn-request-permission');
-
-        // Charger les préférences de notification
-        function loadNotificationPreferences() {
-            const notificationsEnabled = localStorage.getItem('loveVibes_notificationsEnabled') === 'true';
-            const soundEnabled = localStorage.getItem('loveVibes_soundEnabled') !== 'false'; // true par défaut
-            const vibrationEnabled = localStorage.getItem('loveVibes_vibrationEnabled') !== 'false'; // true par défaut
-            
-            if (notificationToggle) notificationToggle.checked = notificationsEnabled;
-            if (notificationSoundToggle) notificationSoundToggle.checked = soundEnabled;
-            if (vibrationToggle) vibrationToggle.checked = vibrationEnabled;
-            
-            if (notificationsEnabled) {
-                requestNotificationPermission();
-            }
-        }
-
-        // Sauvegarder les préférences
-        function saveNotificationPreferences() {
-            if (notificationToggle) {
-                localStorage.setItem('loveVibes_notificationsEnabled', notificationToggle.checked);
-            }
-            if (notificationSoundToggle) {
-                localStorage.setItem('loveVibes_soundEnabled', notificationSoundToggle.checked);
-            }
-            if (vibrationToggle) {
-                localStorage.setItem('loveVibes_vibrationEnabled', vibrationToggle.checked);
-            }
-        }
-
-        // Demander la permission pour les notifications
-        async function requestNotificationPermission() {
-            if (!('Notification' in window)) {
-                showToast('Votre navigateur ne supporte pas les notifications');
-                return;
-            }
-            
-            if (Notification.permission === 'granted') {
-                showToast('Notifications déjà autorisées');
-                await registerServiceWorkerForNotifications();
-                return;
-            }
-            
-            if (Notification.permission !== 'denied') {
-                try {
-                    const permission = await Notification.requestPermission();
-                    if (permission === 'granted') {
-                        showToast('Notifications autorisées !');
-                        await registerServiceWorkerForNotifications();
-                    } else {
-                        showToast('Notifications refusées');
-                    }
-                } catch (error) {
-                    console.error('Erreur de permission:', error);
-                    showToast('Erreur lors de la demande de permission');
-                }
-            }
-        }
-
-        // Enregistrer le Service Worker pour les notifications
-        async function registerServiceWorkerForNotifications() {
-            if (!messaging) return;
-            
-            try {
-                // Demander le token FCM
-                const currentToken = await getToken(messaging, {
-                    vapidKey: 'BLlK6SwxVAPY0k-3HInqlgj6aPE58dY4sxqGk10mRgrLpRhAe_BmH-qcuPZNN1X4z7tsjTSABgHmlBmDvglP9I0'
-                });
-                
-                if (currentToken) {
-                    console.log('Token FCM:', currentToken);
-                    localStorage.setItem('loveVibes_fcmToken', currentToken);
-                    
-                    // Écouter les messages en arrière-plan
-                    onMessage(messaging, (payload) => {
-                        console.log('Message reçu en arrière-plan:', payload);
-                        showNotification(payload);
-                    });
-                } else {
-                    console.log('Aucun token FCM disponible');
-                }
-            } catch (error) {
-                console.error('Erreur lors de l\'obtention du token:', error);
-            }
-        }
-
-        // Afficher une notification
-        function showNotification(payload) {
-            // Vérifier si les notifications sont activées
-            const notificationsEnabled = localStorage.getItem('loveVibes_notificationsEnabled') === 'true';
-            if (!notificationsEnabled) return;
-            
-            const title = payload.notification?.title || 'Love Vibes';
-            const options = {
-                body: payload.notification?.body || 'Nouveau message',
-                icon: '/icons/icon-192x192.png',
-                badge: '/icons/badge-72x72.png',
-                vibrate: [200, 100, 200],
-                tag: 'love-vibes-notification',
-                renotify: true,
-                data: {
-                    url: window.location.href,
-                    chatId: payload.data?.chatId
-                }
-            };
-            
-            // Jouer le son si activé
-            const soundEnabled = localStorage.getItem('loveVibes_soundEnabled') !== 'false';
-            if (soundEnabled && notificationSound) {
-                notificationSound.currentTime = 0;
-                notificationSound.play().catch(e => console.log('Erreur de lecture du son:', e));
-            }
-            
-            // Vibrer si activé
-            const vibrationEnabled = localStorage.getItem('loveVibes_vibrationEnabled') !== 'false';
-            if (vibrationEnabled && 'vibrate' in navigator) {
-                navigator.vibrate([200, 100, 200]);
-            }
-            
-            // Afficher la notification
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then(registration => {
-                    registration.showNotification(title, options);
-                });
-            } else if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification(title, options);
-            }
-        }
-
-        // Gestion des événements de notification
-        if (notificationToggle) {
-            notificationToggle.addEventListener('change', () => {
-                saveNotificationPreferences();
-                if (notificationToggle.checked) {
-                    requestNotificationPermission();
-                }
-            });
-        }
-
-        if (notificationSoundToggle) {
-            notificationSoundToggle.addEventListener('change', saveNotificationPreferences);
-        }
-
-        if (vibrationToggle) {
-            vibrationToggle.addEventListener('change', saveNotificationPreferences);
-        }
-
-        if (requestPermissionBtn) {
-            requestPermissionBtn.addEventListener('click', requestNotificationPermission);
-        }
-
         // --- UTILS ---
         function showToast(msg) {
             toastEl.textContent = msg;
@@ -1842,7 +2041,7 @@
         function hapticFeedback() {
             const vibrationEnabled = localStorage.getItem('loveVibes_vibrationEnabled') !== 'false';
             if (vibrationEnabled && 'vibrate' in navigator) {
-                navigator.vibrate(50); // 50ms comme demandé
+                navigator.vibrate(50);
             }
         }
 
@@ -1850,7 +2049,6 @@
         window.addEventListener('load', () => {
             // Charger les préférences
             loadSavedColors();
-            loadNotificationPreferences();
             
             // Masquer l'écran de chargement après 1.5 secondes
             setTimeout(() => {
@@ -1900,7 +2098,14 @@
 
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
                 const user = cred.user;
-                await setDoc(doc(db, "users", user.uid), { prenom: prenom, username: username, email: email });
+                await setDoc(doc(db, "users", user.uid), { 
+                    prenom: prenom, 
+                    username: username, 
+                    email: email,
+                    createdAt: serverTimestamp(),
+                    bio: "Amoureux de Wendy 🥰",
+                    messagesCount: 0
+                });
                 await updateProfile(user, { displayName: prenom });
                 showToast("Inscription réussie !");
                 switchView('search');
@@ -1924,7 +2129,12 @@
                 .finally(() => setBtnLoading('btn-login', false));
         });
 
-        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                showToast("Déconnecté avec succès");
+                switchView('auth');
+            });
+        });
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -1932,8 +2142,31 @@
                 if (docSnap.exists()) {
                     currentUserData = docSnap.data();
                     currentUserData.uid = user.uid;
+                    
+                    // Mettre à jour l'interface du profil
                     document.getElementById('profile-username-edit').value = currentUserData.username;
+                    document.getElementById('profile-email-edit').value = currentUserData.email;
+                    document.getElementById('profile-display-name').textContent = currentUserData.prenom;
+                    document.getElementById('profile-username-display').textContent = '@' + currentUserData.username;
                     document.getElementById('my-avatar').textContent = currentUserData.prenom.charAt(0);
+                    
+                    // Charger la bio depuis Firebase ou localStorage
+                    const bio = currentUserData.bio || localStorage.getItem('loveVibes_bio') || 'Amoureux de Wendy 🥰';
+                    document.getElementById('profile-bio').value = bio;
+                    
+                    // Mettre à jour les statistiques
+                    if (currentUserData.createdAt) {
+                        const date = currentUserData.createdAt.toDate();
+                        const formattedDate = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+                        document.getElementById('member-since').textContent = formattedDate;
+                        localStorage.setItem('loveVibes_memberSince', formattedDate);
+                    }
+                    
+                    if (currentUserData.messagesCount !== undefined) {
+                        document.getElementById('messages-sent').textContent = currentUserData.messagesCount;
+                        localStorage.setItem('loveVibes_messagesSent', currentUserData.messagesCount);
+                    }
+                    
                     loadRecentChats();
                 }
             } else { 
@@ -2114,6 +2347,14 @@
             `;
             
             messagesContainer.insertBefore(div, typingBubbleElement);
+            
+            // Incrémenter le compteur de messages si c'est notre message
+            if (isMe) {
+                const currentCount = parseInt(localStorage.getItem('loveVibes_messagesSent') || '0');
+                const newCount = currentCount + 1;
+                localStorage.setItem('loveVibes_messagesSent', newCount.toString());
+                document.getElementById('messages-sent').textContent = newCount;
+            }
         }
 
         // --- 2. SWIPE TO REPLY SYSTEM ---
@@ -2236,7 +2477,7 @@
             }
 
             // Haptic feedback
-            hapticFeedback(); // Vibrate 50ms comme demandé
+            hapticFeedback();
             
             await addDoc(collection(db, `chats/${currentChatId}/messages`), messageData);
             
@@ -2261,7 +2502,7 @@
             
             typingInactivityTimer = setTimeout(() => {
                 updateTypingStatus(false);
-            }, TYPING_INACTIVITY_TIMEOUT); // 4 secondes comme demandé
+            }, TYPING_INACTIVITY_TIMEOUT);
         }
 
         document.addEventListener('visibilitychange', () => {
@@ -2308,17 +2549,52 @@
         // --- PROFILE ---
         document.getElementById('btn-save-profile').addEventListener('click', async () => {
             const newName = document.getElementById('profile-username-edit').value.trim();
-            if(newName === currentUserData.username) return;
+            if(newName === currentUserData.username) {
+                showToast("Aucune modification détectée");
+                return;
+            }
+            
             setBtnLoading('btn-save-profile', true);
             try {
+                // Vérifier si le nom d'utilisateur est disponible
                 const q = query(collection(db, "users"), where("username", "==", newName));
                 const snap = await getDocs(q);
-                if(!snap.empty) throw new Error("Nom déjà pris");
-                await updateDoc(doc(db, "users", currentUserData.uid), { username: newName });
+                if(!snap.empty) throw new Error("Nom d'utilisateur déjà pris");
+                
+                // Mettre à jour dans Firebase
+                await updateDoc(doc(db, "users", currentUserData.uid), { 
+                    username: newName 
+                });
+                
+                // Mettre à jour l'état local
                 currentUserData.username = newName;
+                document.getElementById('profile-username-display').textContent = '@' + newName;
+                
                 showToast("Profil mis à jour !");
-            } catch(e) { showToast(e.message); }
-            finally { setBtnLoading('btn-save-profile', false); }
+            } catch(e) { 
+                showToast(e.message); 
+            } finally { 
+                setBtnLoading('btn-save-profile', false); 
+            }
+        });
+
+        // Sauvegarder la bio
+        document.getElementById('save-bio-btn').addEventListener('click', async () => {
+            const bioText = document.getElementById('profile-bio').value.trim();
+            if (!bioText) return;
+            
+            try {
+                if (currentUserData && currentUserData.uid) {
+                    await updateDoc(doc(db, "users", currentUserData.uid), {
+                        bio: bioText
+                    });
+                }
+                localStorage.setItem('loveVibes_bio', bioText);
+                showToast('Bio enregistrée !');
+            } catch (error) {
+                console.error('Erreur lors de la sauvegarde de la bio:', error);
+                showToast('Erreur lors de la sauvegarde');
+            }
         });
 
         // --- NAVIGATION ---
