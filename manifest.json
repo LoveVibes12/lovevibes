@@ -2,14 +2,12 @@
   "name": "Love Vibes",
   "short_name": "LoveVibes",
   "description": "Application de chat romantique",
-  "theme_color": "#FF69B4",
-  "background_color": "#000000",
+  "start_url": "/",
   "display": "standalone",
+  "background_color": "#ff69b4",
+  "theme_color": "#ff69b4",
   "orientation": "portrait",
   "scope": "/",
-  "start_url": "/",
-  "id": "/",
-  "categories": ["social", "entertainment"],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -54,14 +52,30 @@
       "type": "image/png"
     }
   ],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "categories": ["social", "lifestyle", "entertainment"],
   "shortcuts": [
     {
-      "name": "Nouvelle discussion",
-      "short_name": "Chat",
-      "description": "Commencer une nouvelle discussion",
-      "url": "/?newchat",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "name": "Nouveau message",
+      "short_name": "Message",
+      "description": "Envoyer un nouveau message",
+      "url": "/?newmessage",
+      "icons": [{ "src": "/icons/shortcut.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Rechercher",
+      "short_name": "Recherche",
+      "description": "Rechercher des utilisateurs",
+      "url": "/?search",
+      "icons": [{ "src": "/icons/search.png", "sizes": "96x96" }]
     }
-  ]
+  ],
+  "prefer_related_applications": false
 }
