@@ -30,6 +30,8 @@
 
     <style>
         :root {
+            /* Variables de thème dynamiques */
+            --bg-gradient: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
             --glass-bg: rgba(255, 255, 255, 0.1);
             --glass-border: rgba(255, 255, 255, 0.2);
             --text-color: #ffffff;
@@ -37,10 +39,46 @@
             --input-bg: rgba(0, 0, 0, 0.2);
             --swipe-indicator: rgba(255, 105, 180, 0.3);
             --black-text: #000000;
+            --card-bg: rgba(255, 255, 255, 0.08);
             
             /* Variables de couleur personnalisables */
             --my-chat-color: #ff69b4;
             --partner-chat-color: rgba(255, 255, 255, 0.15);
+            
+            /* Variables de thème intelligent */
+            --theme-mode: 'dark'; /* dark, light, random */
+            --primary-color: #ff69b4;
+            --secondary-color: #23a6d5;
+            --accent-color: #23d5ab;
+        }
+
+        /* Thème Clair */
+        .theme-light {
+            --bg-gradient: linear-gradient(-45deg, #e0e5ec, #f0f3fa, #d9e4f5, #e6ecf8);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --text-color: #000000;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --input-bg: rgba(255, 255, 255, 0.8);
+            --partner-chat-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Thème Sombre (défaut) */
+        .theme-dark {
+            --bg-gradient: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+            --glass-bg: rgba(0, 0, 0, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-color: #ffffff;
+            --card-bg: rgba(0, 0, 0, 0.15);
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --partner-chat-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Thème Aléatoire (appliqué dynamiquement) */
+        .theme-random {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --card-bg: rgba(255, 255, 255, 0.1);
         }
 
         * {
@@ -55,18 +93,17 @@
         }
 
         /* CORRECTION URGENTE 1: DÉFILEMENT BLOQUÉ */
-        /* Suppression du overflow: hidden sur html et body */
         html, body {
             width: 100%;
             height: 100%;
-            position: relative; /* Changé de fixed à relative */
+            position: relative;
             -webkit-overflow-scrolling: touch;
-            overscroll-behavior: none; /* Empêche le scroll-rebond */
+            overscroll-behavior: none;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background: var(--bg-gradient);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             color: var(--text-color);
@@ -76,7 +113,8 @@
             overscroll-behavior: none;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden; /* Permet seulement le défilement vertical */
+            overflow-x: hidden;
+            transition: background 0.8s ease, color 0.8s ease;
         }
 
         @keyframes gradientBG {
@@ -92,7 +130,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background: var(--bg-gradient);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             display: flex;
@@ -135,13 +173,49 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* STYLE LIQUID GLASS PRINCIPAL */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        /* BOUTONS LIQUID GLASS */
+        .btn-liquid-glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            color: var(--text-color);
+            padding: 15px 25px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-liquid-glass:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-liquid-glass:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-liquid-glass.primary {
+            background: var(--pink-accent);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         /* --- Layout --- */
@@ -153,8 +227,8 @@
             max-width: 600px;
             margin: 0 auto;
             width: 100%;
-            display: none; /* Caché au début */
-            min-height: calc(100vh - 80px); /* Hauteur minimale moins le footer */
+            display: none;
+            min-height: calc(100vh - 80px);
         }
 
         .view {
@@ -169,8 +243,7 @@
             opacity: 1;
         }
 
-        /* --- CORRECTION BUG SCROLL MOBILE - URGENCE 1 --- */
-        /* Conteneurs principaux avec scroll autorisé */
+        /* --- CORRECTION BUG SCROLL MOBILE --- */
         #view-chat-search, #view-settings, #view-profile {
             min-height: calc(100vh - 140px);
             height: auto;
@@ -179,7 +252,6 @@
             padding-bottom: 20px;
         }
 
-        /* Assurer que le contenu peut défiler */
         .settings-container, .profile-content, .chat-list {
             flex: 1;
             overflow-y: auto;
@@ -187,7 +259,6 @@
             padding-bottom: 20px;
         }
 
-        /* S'assurer que le contenu n'est pas caché derrière le header/footer */
         #view-chat-search {
             padding-top: 10px;
             padding-bottom: 100px;
@@ -208,39 +279,23 @@
             font-weight: 700;
         }
 
-        /* CORRECTION URGENTE 2: VISIBILITÉ DES CHAMPS DE SAISIE */
-        /* Cibler tous les champs de saisie */
+        /* CORRECTION VISIBILITÉ DES CHAMPS DE SAISIE */
         input, textarea {
             width: 100%;
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 12px;
-            border: 1px solid rgba(0, 0, 0, 0.3) !important; /* Bordure visible */
-            background: #ffffff !important; /* Fond blanc solide */
-            color: #000000 !important; /* Texte noir */
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #000000 !important;
             font-family: 'Poppins', sans-serif;
             transition: 0.3s;
-            font-size: 16px; /* Évite le zoom sur iOS */
+            font-size: 16px;
             resize: vertical;
-            -webkit-appearance: none; /* Désactiver le style natif iOS */
+            -webkit-appearance: none;
             appearance: none;
         }
 
-        /* Style spécifique pour les champs d'authentification */
-        #login-form input,
-        #register-form input,
-        #profile-bio,
-        #profile-username-edit,
-        #profile-email-edit,
-        #search-input,
-        #msg-input {
-            background: #ffffff !important;
-            color: #000000 !important;
-            border: 1px solid #ccc !important;
-            border-radius: 12px !important;
-        }
-
-        /* Placeholder visible */
         input::placeholder,
         textarea::placeholder {
             color: #666 !important;
@@ -252,41 +307,6 @@
             color: #000000 !important;
             border-color: var(--pink-accent) !important;
             outline: none;
-        }
-
-        button.btn-primary {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            background: var(--pink-accent);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        button.btn-primary:active { 
-            transform: scale(0.98); 
-        }
-        
-        button:disabled { 
-            opacity: 0.7; 
-            cursor: not-allowed; 
-        }
-
-        .btn-loader {
-            width: 20px; 
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-left-color: #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: none; 
-            margin-right: 10px;
         }
 
         /* --- View: Auth --- */
@@ -305,6 +325,116 @@
             cursor: pointer; 
             text-decoration: underline; 
             opacity: 0.8; 
+        }
+
+        /* --- MODULE 1: GESTION DES DISCUSSIONS --- */
+        /* Style pour les conversations épinglées */
+        .chat-item.pinned {
+            position: relative;
+            border-left: 4px solid var(--pink-accent);
+            background: rgba(255, 105, 180, 0.05) !important;
+        }
+
+        .chat-item.pinned::before {
+            content: "\f08d";
+            font-family: "Font Awesome 6 Free";
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            color: var(--pink-accent);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        /* Modal d'actions pour appui long */
+        #long-press-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        #long-press-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .action-modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            width: 90%;
+            max-width: 350px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        #long-press-modal.active .action-modal-content {
+            transform: translateY(0);
+        }
+
+        .action-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: var(--text-color);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .action-btn i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .action-btn.pin i {
+            color: #ffd700;
+        }
+
+        .action-btn.delete i {
+            color: #ff4757;
+        }
+
+        .action-btn.cancel i {
+            color: #747d8c;
         }
 
         /* --- View: Chat Search --- */
@@ -330,20 +460,28 @@
             min-height: 300px;
         }
 
-        .user-card {
+        .chat-item {
             display: flex; 
             align-items: center; 
             padding: 15px; 
             margin-bottom: 10px; 
             cursor: pointer;
-            transition: background 0.3s; 
-            border-radius: 12px;
+            transition: background 0.3s, transform 0.2s; 
+            border-radius: 15px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
         }
         
-        .user-card:hover { 
+        .chat-item:hover { 
             background: rgba(255, 255, 255, 0.1); 
         }
         
+        .chat-item:active {
+            transform: scale(0.98);
+        }
+
         .avatar {
             width: 45px; 
             height: 45px; 
@@ -357,7 +495,7 @@
             color: #333;
         }
 
-        /* --- CHAT ROOM FLEXBOX LAYOUT (CORRECTED) --- */
+        /* --- CHAT ROOM FLEXBOX LAYOUT --- */
         #view-chat-room.active {
             position: fixed;
             top: 0;
@@ -370,14 +508,13 @@
             padding: 0;
             margin: 0;
             z-index: 1000;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background: var(--bg-gradient);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             display: flex;
             flex-direction: column;
         }
 
-        /* Flexbox container pour header, messages et input */
         #chat-room-container {
             display: flex;
             flex-direction: column;
@@ -436,11 +573,7 @@
             transition: transform 0.3s ease, background 0.3s;
             touch-action: pan-y;
             will-change: transform;
-        }
-
-        .msg-bubble.swiping {
-            transition: transform 0.1s ease;
-            background: var(--swipe-indicator) !important;
+            backdrop-filter: blur(5px);
         }
 
         @keyframes popIn {
@@ -448,7 +581,6 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* MOI (Droite) - Utilise la couleur personnalisée */
         .msg-bubble.mine {
             align-self: flex-end;
             background: var(--my-chat-color) !important;
@@ -456,15 +588,13 @@
             color: white;
         }
 
-        /* L'AUTRE (Gauche) - Utilise la couleur personnalisée */
         .msg-bubble.theirs {
             align-self: flex-start;
             background: var(--partner-chat-color) !important;
             border-bottom-left-radius: 2px;
-            color: #f0f0f0;
+            color: var(--text-color);
         }
 
-        /* Heure (Style WhatsApp) */
         .msg-time {
             font-size: 0.7rem;
             color: rgba(255,255,255,0.7);
@@ -481,111 +611,6 @@
             font-weight: bold; 
             display: block; 
             pointer-events: none;
-        }
-
-        /* --- PRÉVISUALISATION DE RÉPONSE --- */
-        #reply-preview-wrapper {
-            position: sticky;
-            bottom: 70px;
-            left: 0;
-            right: 0;
-            z-index: 99;
-            max-width: 600px;
-            margin: 0 auto;
-            width: 100%;
-            pointer-events: none;
-        }
-
-        #reply-preview {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-top: 1px solid var(--glass-border);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 12px 20px;
-            transform: translateY(100%);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            pointer-events: all;
-        }
-
-        #reply-preview.active {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .reply-preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .reply-preview-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--pink-accent);
-        }
-
-        .reply-preview-sender {
-            color: var(--black-text);
-            font-weight: 700;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 1px 6px;
-            border-radius: 4px;
-            margin: 0 3px;
-        }
-
-        .reply-preview-content {
-            font-size: 0.85rem;
-            opacity: 0.9;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding-right: 30px;
-        }
-
-        #cancel-reply-btn {
-            background: transparent;
-            border: none;
-            color: rgba(255,255,255,0.6);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 5px;
-            transition: color 0.2s;
-            pointer-events: all;
-        }
-
-        #cancel-reply-btn:hover {
-            color: var(--pink-accent);
-        }
-
-        /* --- ENCADRÉ DE RÉPONSE DANS LES MESSAGES --- */
-        .reply-to-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            border-left: 3px solid var(--pink-accent);
-            border-radius: 8px 0 0 8px;
-            padding: 6px 10px;
-            margin-bottom: 8px;
-            font-size: 0.8rem;
-            opacity: 0.9;
-            pointer-events: none;
-        }
-
-        .reply-to-sender {
-            font-weight: bold;
-            color: var(--pink-accent);
-            font-size: 0.75rem;
-            margin-bottom: 2px;
-        }
-
-        .reply-to-text {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 0.75rem;
-            opacity: 0.8;
         }
 
         /* --- BARRE DE SAISIE FIXE --- */
@@ -610,191 +635,161 @@
             width: 100%;
         }
 
-        .send-btn {
-            position: absolute; 
-            right: 10px; 
-            top: 50%; 
-            transform: translateY(-50%);
-            background: none; 
-            border: none; 
-            color: var(--pink-accent); 
-            cursor: pointer; 
-            font-size: 1.2rem;
-            padding: 10px;
-        }
-
         .chat-input-wrapper input {
             width: 100%;
             padding: 12px 50px 12px 15px;
             margin: 0;
             border-radius: 25px;
-            background: #ffffff !important;
+            background: rgba(255, 255, 255, 0.9) !important;
             color: #000000 !important;
-            border: 1px solid #ccc !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
         }
 
-        .chat-input-wrapper input::placeholder {
-            color: #666 !important;
-        }
-
-        /* --- INDICATEUR DE SAISIE --- */
-        .typing-bubble {
-            display: none;
-            align-self: flex-start;
-            background: rgba(255, 255, 255, 0.15);
+        /* --- MODULE 3: REFONTE UX/UI PROFESSIONNELLE --- */
+        /* Carte de paramètres style iOS */
+        .settings-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
             border-radius: 18px;
-            border-bottom-left-radius: 2px;
-            padding: 12px 15px;
-            max-width: 60px;
-            margin-bottom: 8px;
-            animation: fadeIn 0.3s ease;
-            order: 9999;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .typing-dots-container {
+        .settings-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-color);
             display: flex;
             align-items: center;
-            justify-content: center;
-            height: 15px;
-        }
-        
-        .dot {
-            width: 8px;
-            height: 8px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            margin: 0 2px;
-            animation: facebookBounce 1.4s infinite ease-in-out both;
+            gap: 10px;
         }
 
-        .dot:nth-child(1) { 
-            animation-delay: -0.32s; 
-        }
-        .dot:nth-child(2) { 
-            animation-delay: -0.16s; 
-        }
-        .dot:nth-child(3) { 
-            animation-delay: 0s; 
-        }
-
-        @keyframes facebookBounce {
-            0%, 60%, 100% { 
-                transform: translateY(0);
-                opacity: 0.6;
-            }
-            30% { 
-                transform: translateY(-5px);
-                opacity: 1;
-            }
-        }
-
-        /* --- PAGE PARAMÈTRES / PERSONNALISATION --- */
-        #view-settings {
-            justify-content: flex-start;
-            padding-top: 20px;
-        }
-
-        .settings-container {
-            padding: 30px;
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            min-height: calc(100vh - 200px);
-        }
-
-        .settings-section {
-            margin-bottom: 30px;
-        }
-
-        .settings-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
+        .settings-card-title i {
             color: var(--pink-accent);
-            font-weight: 600;
         }
 
-        .color-picker-container {
+        /* Barre de progression (Niveau d'implication) */
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--pink-accent), #ff8eb4);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Section d'action du profil */
+        .profile-actions-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        /* Boutons de thème */
+        .theme-buttons {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
         }
 
-        .color-picker {
+        .theme-btn {
+            padding: 18px 10px;
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 8px;
         }
 
-        .color-picker-label {
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            opacity: 0.9;
+        .theme-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
         }
 
-        .color-preview {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            border: 3px solid white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            cursor: pointer;
-            transition: transform 0.2s;
+        .theme-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--pink-accent);
         }
 
-        .color-preview:hover {
-            transform: scale(1.05);
+        .theme-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
         }
 
-        .color-option {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 10px;
+        .theme-btn.dark i { color: #2d3436; }
+        .theme-btn.light i { color: #fdcb6e; }
+        .theme-btn.random i { color: #6c5ce7; }
+
+        /* Groupes de paramètres */
+        .settings-group {
+            margin-bottom: 25px;
         }
 
-        .color-option-item {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.2s, border 0.2s;
-        }
-
-        .color-option-item:hover {
-            transform: scale(1.1);
-        }
-
-        .color-option-item.active {
-            border-color: white;
-            transform: scale(1.1);
-        }
-
-        .notification-toggle {
+        .settings-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 15px 0;
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .toggle-label {
-            font-size: 1rem;
-            font-weight: 500;
+        .settings-item:last-child {
+            border-bottom: none;
         }
 
-        /* Toggle Switch */
+        .settings-item-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-item-label i {
+            color: var(--pink-accent);
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Toggle Switch amélioré */
         .toggle-switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 26px;
+            width: 54px;
+            height: 28px;
         }
 
         .toggle-switch input {
@@ -818,8 +813,8 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 20px;
+            width: 20px;
             left: 4px;
             bottom: 4px;
             background-color: white;
@@ -832,7 +827,7 @@
         }
 
         input:checked + .slider:before {
-            transform: translateX(24px);
+            transform: translateX(26px);
         }
 
         /* --- NOUVEAU STYLE POUR LA PAGE PROFIL --- */
@@ -844,79 +839,51 @@
             min-height: calc(100vh - 200px);
         }
 
-        .profile-section {
-            margin-bottom: 25px;
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
         }
 
-        .profile-section-title {
-            font-size: 1rem;
-            color: var(--pink-accent);
-            margin-bottom: 10px;
-            font-weight: 600;
+        .profile-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff69b4, #e73c7e);
+            margin: 0 auto 20px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
         }
 
-        .profile-section-title i {
-            font-size: 0.9rem;
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
         }
 
-        .bio-container {
-            position: relative;
-        }
-
-        .bio-edit-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.6);
-            cursor: pointer;
-            font-size: 0.9rem;
-            padding: 5px;
-        }
-
-        .stats-card {
+        .stat-card {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             padding: 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-item {
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .stat-value {
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: 700;
             color: var(--pink-accent);
             margin-bottom: 5px;
         }
 
         .stat-label {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             opacity: 0.8;
-        }
-
-        .profile-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
         }
 
         /* --- Bottom Navigation --- */
@@ -1013,160 +980,53 @@
             animation: popIn 0.3s ease;
         }
 
-        .ios-install-icon {
-            font-size: 3rem;
-            color: var(--pink-accent);
-            margin-bottom: 20px;
-        }
-
-        .ios-install-title {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: white;
-        }
-
-        .ios-install-steps {
-            text-align: left;
-            margin: 20px 0;
-            padding-left: 20px;
-        }
-
-        .ios-install-step {
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            opacity: 0.9;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .ios-install-step i {
-            color: var(--pink-accent);
-            margin-top: 3px;
-        }
-
-        .close-ios-modal {
-            margin-top: 20px;
-            background: var(--pink-accent);
-            color: white;
-            border: none;
-            padding: 12px 25px;
+        /* --- TOAST NOTIFICATION --- */
+        #toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
             border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.2s;
-        }
-
-        .close-ios-modal:active {
-            transform: scale(0.98);
-        }
-
-        .install-prompt-content {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .install-icon {
-            font-size: 2rem;
-            margin-right: 15px;
-            color: var(--pink-accent);
-        }
-
-        .install-text h4 {
-            margin-bottom: 5px;
+            z-index: 999;
+            display: none;
             color: white;
+            font-size: 0.9rem;
+            max-width: 90%;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
         }
 
-        .install-text p {
-            font-size: 0.85rem;
-            opacity: 0.8;
-        }
-
-        .install-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .install-btn {
-            padding: 8px 20px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.2s;
-        }
-
-        .install-btn.primary {
-            background: var(--pink-accent);
-            color: white;
-        }
-
-        .install-btn.secondary {
-            background: transparent;
-            color: rgba(255,255,255,0.8);
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        /* Ajustement pour les messages sur mobile */
+        /* Ajustements responsifs */
         @media (max-width: 768px) {
-            #messages-container {
-                padding: 10px 10px 80px 10px;
-            }
-            
-            #messages-container.with-reply-preview {
-                padding-bottom: 130px;
-            }
-            
-            .chat-input-wrapper {
-                padding: 10px 15px;
-            }
-            
-            #reply-preview-wrapper {
-                bottom: 60px;
-            }
-            
-            #reply-preview {
-                padding: 10px 15px;
-            }
-            
-            .splash-logo {
-                font-size: 2.8rem;
-            }
-            
-            .stats-card {
-                grid-template-columns: 1fr;
-            }
-            
-            /* Ajustements pour le défilement mobile */
             #view-chat-search, #view-settings, #view-profile {
                 min-height: calc(100vh - 120px);
                 padding-bottom: 80px;
             }
-        }
-
-        @media (max-width: 480px) {
-            .msg-bubble {
-                max-width: 85%;
-            }
             
-            .color-picker-container {
+            .theme-buttons {
                 grid-template-columns: 1fr;
             }
             
+            .profile-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
             .profile-content, .settings-container {
                 padding: 20px 15px;
             }
             
-            /* Ajustements pour les champs de saisie sur petits écrans */
-            input, textarea {
-                padding: 12px;
-                font-size: 14px;
+            .theme-btn {
+                padding: 15px 8px;
+                font-size: 0.8rem;
             }
         }
 
-        /* Mode PWA - Cache les éléments du navigateur */
+        /* Mode PWA */
         @media all and (display-mode: standalone) {
             body {
                 padding-top: env(safe-area-inset-top);
@@ -1180,11 +1040,6 @@
             .bottom-nav {
                 height: calc(60px + env(safe-area-inset-bottom));
                 padding-bottom: env(safe-area-inset-bottom);
-            }
-            
-            /* Ajustements supplémentaires pour le défilement en PWA */
-            #view-chat-search, #view-settings, #view-profile {
-                min-height: calc(100vh - 140px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
             }
         }
     </style>
@@ -1236,10 +1091,31 @@
         </div>
     </div>
 
+    <!-- MODAL D'ACTIONS POUR APPUI LONG -->
+    <div id="long-press-modal">
+        <div class="action-modal-content glass-panel">
+            <div class="action-title">Options de discussion</div>
+            <div class="action-buttons">
+                <button class="action-btn pin" id="pin-chat-btn">
+                    <i class="fas fa-thumbtack"></i>
+                    <span>Épingler la discussion</span>
+                </button>
+                <button class="action-btn delete" id="delete-chat-btn">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Supprimer la discussion</span>
+                </button>
+                <button class="action-btn cancel" id="cancel-action-btn">
+                    <i class="fas fa-times"></i>
+                    <span>Annuler</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="app-container">
         
         <!-- TOAST NOTIFICATION -->
-        <div id="toast" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 20px; z-index: 999; display: none;"></div>
+        <div id="toast"></div>
 
         <!-- VIEW: AUTH -->
         <section id="view-auth" class="view active">
@@ -1249,7 +1125,7 @@
                 <div id="login-form">
                     <input type="email" id="login-email" placeholder="Email">
                     <input type="password" id="login-pass" placeholder="Mot de passe">
-                    <button class="btn-primary" id="btn-login">
+                    <button class="btn-primary btn-liquid-glass primary" id="btn-login">
                         <div class="btn-loader"></div> <span>Connexion</span>
                     </button>
                     <div class="link-text" id="show-register">Créer un compte</div>
@@ -1261,7 +1137,7 @@
                     <input type="email" id="reg-email" placeholder="Email">
                     <input type="password" id="reg-pass" placeholder="Mot de passe">
                     <input type="password" id="reg-pass-conf" placeholder="Confirmer mot de passe">
-                    <button class="btn-primary" id="btn-register">
+                    <button class="btn-primary btn-liquid-glass primary" id="btn-register">
                         <div class="btn-loader"></div> <span>S'inscrire</span>
                     </button>
                     <div class="link-text" id="show-login">Retour connexion</div>
@@ -1279,7 +1155,24 @@
             </div>
 
             <div class="chat-list" id="chat-list-container">
-                <div id="recent-chats-list"></div>
+                <!-- Discussions épinglées -->
+                <div id="pinned-chats-section" style="margin-bottom: 20px;">
+                    <div style="font-size: 0.9rem; color: var(--pink-accent); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-thumbtack"></i>
+                        <span>Épinglées</span>
+                    </div>
+                    <div id="pinned-chats-list"></div>
+                </div>
+                
+                <!-- Discussions normales -->
+                <div id="recent-chats-section">
+                    <div style="font-size: 0.9rem; color: var(--text-color); opacity: 0.8; margin-bottom: 10px;">
+                        Récents
+                    </div>
+                    <div id="recent-chats-list"></div>
+                </div>
+                
+                <!-- Résultats de recherche -->
                 <div id="search-results"></div>
             </div>
         </section>
@@ -1301,20 +1194,6 @@
                     <!-- Zone de messages scrollable -->
                     <div id="messages-container">
                         <!-- Les messages s'affichent ici dynamiquement -->
-                        <!-- L'indicateur de saisie sera injecté ici en JS -->
-                    </div>
-                </div>
-
-                <!-- Prévisualisation de réponse (sticky) -->
-                <div id="reply-preview-wrapper">
-                    <div id="reply-preview">
-                        <div class="reply-preview-header">
-                            <div class="reply-preview-title">
-                                Réponse à <span class="reply-preview-sender" id="reply-preview-sender"></span>
-                            </div>
-                            <button id="cancel-reply-btn">✕</button>
-                        </div>
-                        <div class="reply-preview-content" id="reply-preview-text"></div>
                     </div>
                 </div>
 
@@ -1330,71 +1209,95 @@
 
         <!-- VIEW: PROFILE (REFONTE COMPLÈTE) -->
         <section id="view-profile" class="view">
-            <div class="glass-panel profile-content">
-                <h1 class="title" style="font-size: 1.8rem;">Mon Profil</h1>
-                
-                <!-- Photo de profil -->
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <div class="avatar" style="width: 100px; height: 100px; font-size: 2.5rem; margin: 0 auto 20px; background: linear-gradient(135deg, #ff69b4, #e73c7e);" id="my-avatar">M</div>
+            <div class="profile-content">
+                <!-- En-tête du profil -->
+                <div class="profile-header">
+                    <div class="profile-avatar-large" id="my-avatar">M</div>
                     <h2 style="font-size: 1.5rem; margin-bottom: 5px;" id="profile-display-name">Utilisateur</h2>
                     <p style="opacity: 0.8; font-size: 0.9rem;" id="profile-username-display">@username</p>
                 </div>
                 
                 <!-- Section Bio/Statut -->
-                <div class="profile-section">
-                    <div class="profile-section-title">
+                <div class="settings-card">
+                    <div class="settings-card-title">
                         <i class="fas fa-heart"></i>
                         <span>Statut / Bio</span>
                     </div>
                     <div class="bio-container">
                         <textarea id="profile-bio" rows="3" placeholder="Ex: Amoureux de Wendy 🥰 | Développeur passionné | Fan de musique...">Amoureux de Wendy 🥰</textarea>
-                        <button class="bio-edit-btn" id="save-bio-btn" title="Enregistrer la bio">
-                            <i class="fas fa-save"></i>
+                        <button class="btn-liquid-glass" id="save-bio-btn" style="margin-top: 10px; width: 100%;">
+                            <i class="fas fa-save"></i> Enregistrer la bio
                         </button>
                     </div>
                 </div>
                 
-                <!-- Carte Statistiques -->
-                <div class="profile-section">
-                    <div class="profile-section-title">
+                <!-- Statistiques -->
+                <div class="settings-card">
+                    <div class="settings-card-title">
                         <i class="fas fa-chart-line"></i>
                         <span>Statistiques</span>
                     </div>
-                    <div class="stats-card">
-                        <div class="stat-item">
+                    <div class="profile-stats-grid">
+                        <div class="stat-card">
                             <div class="stat-value" id="member-since">2024</div>
                             <div class="stat-label">Membre depuis</div>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-card">
                             <div class="stat-value" id="messages-sent">127</div>
                             <div class="stat-label">Messages envoyés</div>
                         </div>
                     </div>
                 </div>
                 
+                <!-- Niveau d'implication -->
+                <div class="settings-card">
+                    <div class="settings-card-title">
+                        <i class="fas fa-trophy"></i>
+                        <span>Niveau d'implication</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Progression</span>
+                            <span id="progress-percent">25%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill" style="width: 25%"></div>
+                        </div>
+                        <div class="progress-stats">
+                            <span>Niveau: <strong id="user-level">1</strong></span>
+                            <span>Points: <strong id="user-points">250/1000</strong></span>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Informations personnelles -->
-                <div class="profile-section">
-                    <div class="profile-section-title">
+                <div class="settings-card">
+                    <div class="settings-card-title">
                         <i class="fas fa-user-edit"></i>
                         <span>Informations personnelles</span>
                     </div>
-                    <label style="font-size: 0.9rem; opacity: 0.8; display: block; margin-bottom: 8px;">Nom d'utilisateur</label>
-                    <input type="text" id="profile-username-edit" placeholder="Nouveau nom d'utilisateur">
-                    
-                    <label style="font-size: 0.9rem; opacity: 0.8; display: block; margin-bottom: 8px; margin-top: 15px;">Adresse email</label>
-                    <input type="email" id="profile-email-edit" placeholder="Adresse email" readonly style="background: rgba(0,0,0,0.1);">
+                    <div class="settings-group">
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-size: 0.9rem; opacity: 0.8; display: block; margin-bottom: 8px;">Nom d'utilisateur</label>
+                            <input type="text" id="profile-username-edit" placeholder="Nouveau nom d'utilisateur">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.9rem; opacity: 0.8; display: block; margin-bottom: 8px;">Adresse email</label>
+                            <input type="email" id="profile-email-edit" placeholder="Adresse email" readonly style="background: rgba(0,0,0,0.1);">
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- Actions -->
-                <div class="profile-actions">
-                    <button class="btn-primary" id="btn-save-profile">
+                <!-- Actions du profil -->
+                <div class="profile-actions-section">
+                    <button class="btn-liquid-glass primary" id="btn-save-profile" style="margin-bottom: 15px; width: 100%;">
                         <div class="btn-loader" id="profile-loader"></div> 
-                        <span>Enregistrer les modifications</span>
+                        <i class="fas fa-save"></i> Enregistrer les modifications
                     </button>
-                    <button class="btn-primary btn-secondary" id="btn-change-avatar">
+                    <button class="btn-liquid-glass" id="btn-change-avatar" style="margin-bottom: 15px; width: 100%;">
                         <i class="fas fa-camera"></i> Changer la photo de profil
                     </button>
-                    <button class="btn-primary" id="btn-logout" style="background: linear-gradient(135deg, #e73c7e, #ff4757); margin-top: 10px;">
+                    <button class="btn-liquid-glass" id="btn-logout" style="background: linear-gradient(135deg, #e73c7e, #ff4757); width: 100%;">
                         <i class="fas fa-sign-out-alt"></i> Déconnexion
                     </button>
                 </div>
@@ -1403,97 +1306,147 @@
 
         <!-- VIEW: SETTINGS -->
         <section id="view-settings" class="view">
-            <div class="glass-panel settings-container">
+            <div class="settings-container">
                 <h1 class="title" style="font-size: 1.8rem; margin-bottom: 30px;">Paramètres</h1>
                 
-                <div class="settings-section">
-                    <h3 class="settings-title">Personnalisation des Couleurs</h3>
-                    <p style="margin-bottom: 20px; opacity: 0.8; font-size: 0.9rem;">
-                        Choisissez les couleurs de votre interface. Ces modifications sont uniquement visibles sur votre appareil.
-                    </p>
+                <!-- Carte Apparence -->
+                <div class="settings-card">
+                    <div class="settings-card-title">
+                        <i class="fas fa-palette"></i>
+                        <span>Apparence</span>
+                    </div>
                     
-                    <div class="color-picker-container">
-                        <div class="color-picker">
-                            <div class="color-picker-label">Mes messages</div>
-                            <div class="color-preview" id="my-color-preview" style="background: #ff69b4;"></div>
-                            <input type="color" id="my-color-picker" value="#ff69b4" style="display: none;">
-                            <div class="color-option">
-                                <div class="color-option-item" style="background: #ff69b4;" data-color="#ff69b4"></div>
-                                <div class="color-option-item" style="background: #e73c7e;" data-color="#e73c7e"></div>
-                                <div class="color-option-item" style="background: #23a6d5;" data-color="#23a6d5"></div>
-                                <div class="color-option-item" style="background: #23d5ab;" data-color="#23d5ab"></div>
-                                <div class="color-option-item" style="background: #ff9a00;" data-color="#ff9a00"></div>
-                                <div class="color-option-item" style="background: #9d4edd;" data-color="#9d4edd"></div>
-                                <div class="color-option-item" style="background: #ff595e;" data-color="#ff595e"></div>
-                                <div class="color-option-item" style="background: #8ac926;" data-color="#8ac926"></div>
-                            </div>
+                    <!-- MODULE 2: SYSTÈME DE THÈMES INTELLIGENT -->
+                    <div style="margin-bottom: 25px;">
+                        <div style="font-size: 0.9rem; margin-bottom: 12px; opacity: 0.9;">Thème de l'application</div>
+                        <div class="theme-buttons">
+                            <button class="theme-btn dark active" data-theme="dark">
+                                <i class="fas fa-moon"></i>
+                                <span>Sombre</span>
+                            </button>
+                            <button class="theme-btn light" data-theme="light">
+                                <i class="fas fa-sun"></i>
+                                <span>Clair</span>
+                            </button>
+                            <button class="theme-btn random" data-theme="random">
+                                <i class="fas fa-random"></i>
+                                <span>Aléatoire</span>
+                            </button>
                         </div>
-                        
-                        <div class="color-picker">
-                            <div class="color-picker-label">Messages reçus</div>
-                            <div class="color-preview" id="partner-color-preview" style="background: rgba(255, 255, 255, 0.15);"></div>
-                            <input type="color" id="partner-color-picker" value="#ffffff" style="display: none; opacity: 0.15;">
-                            <div class="color-option">
-                                <div class="color-option-item" style="background: rgba(255,255,255,0.15);" data-color="rgba(255,255,255,0.15)"></div>
-                                <div class="color-option-item" style="background: rgba(200,230,255,0.2);" data-color="rgba(200,230,255,0.2)"></div>
-                                <div class="color-option-item" style="background: rgba(255,200,230,0.2);" data-color="rgba(255,200,230,0.2)"></div>
-                                <div class="color-option-item" style="background: rgba(200,255,230,0.2);" data-color="rgba(200,255,230,0.2)"></div>
-                                <div class="color-option-item" style="background: rgba(230,230,255,0.2);" data-color="rgba(230,230,255,0.2)"></div>
-                                <div class="color-option-item" style="background: rgba(255,230,200,0.2);" data-color="rgba(255,230,200,0.2)"></div>
-                                <div class="color-option-item" style="background: rgba(230,255,200,0.2);" data-color="rgba(230,255,200,0.2)"></div>
-                                <div class="color-option-item" style="background: rgba(200,200,230,0.2);" data-color="rgba(200,200,230,0.2)"></div>
+                    </div>
+                    
+                    <!-- Personnalisation des couleurs -->
+                    <div style="margin-top: 20px;">
+                        <div style="font-size: 0.9rem; margin-bottom: 12px; opacity: 0.9;">Couleurs des messages</div>
+                        <div class="color-picker-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <div style="font-size: 0.8rem; margin-bottom: 8px;">Mes messages</div>
+                                <input type="color" id="my-color-picker" value="#ff69b4" style="width: 100%; height: 40px; border-radius: 8px;">
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8rem; margin-bottom: 8px;">Messages reçus</div>
+                                <input type="color" id="partner-color-picker" value="#ffffff" style="width: 100%; height: 40px; border-radius: 8px;">
                             </div>
                         </div>
                     </div>
                     
-                    <button class="btn-primary" id="btn-save-colors" style="margin-top: 20px;">
-                        Enregistrer les couleurs
-                    </button>
-                    <button class="btn-primary" id="btn-reset-colors" style="background: #666; margin-top: 10px;">
-                        Réinitialiser aux couleurs par défaut
+                    <button class="btn-liquid-glass" id="btn-save-colors" style="margin-top: 20px; width: 100%;">
+                        <i class="fas fa-save"></i> Enregistrer les couleurs
                     </button>
                 </div>
                 
-                <div class="settings-section">
-                    <h3 class="settings-title">Notifications</h3>
-                    
-                    <div class="notification-toggle">
-                        <div class="toggle-label">Activer les notifications push</div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="toggle-notifications">
-                            <span class="slider"></span>
-                        </label>
+                <!-- Carte Notifications -->
+                <div class="settings-card">
+                    <div class="settings-card-title">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
                     </div>
                     
-                    <div class="notification-toggle">
-                        <div class="toggle-label">Son de notification</div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="toggle-notification-sound" checked>
-                            <span class="slider"></span>
-                        </label>
+                    <div class="settings-group">
+                        <div class="settings-item">
+                            <div class="settings-item-label">
+                                <i class="fas fa-bell"></i>
+                                <span>Notifications push</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-notifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div class="settings-item-label">
+                                <i class="fas fa-volume-up"></i>
+                                <span>Son de notification</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-notification-sound" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div class="settings-item-label">
+                                <i class="fas fa-vibrate"></i>
+                                <span>Vibrations</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-vibration" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
                     </div>
                     
-                    <div class="notification-toggle">
-                        <div class="toggle-label">Vibrations</div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="toggle-vibration" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    
-                    <button class="btn-primary" id="btn-request-permission" style="margin-top: 20px;">
+                    <button class="btn-liquid-glass" id="btn-request-permission" style="width: 100%; margin-top: 15px;">
                         <i class="fas fa-bell"></i> Autoriser les notifications
                     </button>
                 </div>
                 
-                <div class="settings-section">
-                    <h3 class="settings-title">Application</h3>
-                    <button class="btn-primary" id="btn-install-app" style="margin-bottom: 10px;">
+                <!-- Carte Compte -->
+                <div class="settings-card">
+                    <div class="settings-card-title">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Compte</span>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <div class="settings-item">
+                            <div class="settings-item-label">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Mode privé</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-private-mode">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div class="settings-item-label">
+                                <i class="fas fa-eye"></i>
+                                <span>En ligne</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-online-status" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-liquid-glass" id="btn-install-app" style="width: 100%; margin-bottom: 15px;">
                         <i class="fas fa-download"></i> Installer l'application
                     </button>
-                    <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 10px;">
-                        Version 2.0.0 • Love Vibes © 2024
-                    </p>
+                    
+                    <button class="btn-liquid-glass" id="btn-clear-cache" style="width: 100%; background: rgba(255, 71, 87, 0.1); color: #ff4757; border-color: rgba(255, 71, 87, 0.3);">
+                        <i class="fas fa-broom"></i> Vider le cache
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                        <p style="font-size: 0.85rem; opacity: 0.7;">
+                            Love Vibes v2.1.0<br>
+                            © 2024 Tous droits réservés
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1521,10 +1474,10 @@
         <source src="/notification.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Service Worker Registration et PWA Logic -->
+    <!-- JavaScript Principal -->
     <script>
         // ============================================
-        // PWA INSTALLATION LOGIC (Android + iOS)
+        // PWA INSTALLATION LOGIC
         // ============================================
         
         let deferredPrompt;
@@ -1535,32 +1488,25 @@
         const iosInstallModal = document.getElementById('ios-install-modal');
         const closeIosModalBtn = document.getElementById('close-ios-modal');
 
-        // Détecter iOS
         function isIOS() {
             return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         }
 
-        // Détecter si l'app est déjà installée
         function isAppInstalled() {
             return window.matchMedia('(display-mode: standalone)').matches || 
                    window.navigator.standalone === true;
         }
 
-        // Gérer l'installation pour Android/PC
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             
-            // Afficher le bouton d'installation dans les paramètres
             if (installAppBtn) {
                 installAppBtn.style.display = 'flex';
                 installAppBtn.innerHTML = '<i class="fas fa-download"></i> Installer l\'application';
-                
-                // Gérer le clic sur le bouton d'installation
                 installAppBtn.onclick = handleInstall;
             }
             
-            // Afficher le prompt automatiquement après 5 secondes (Android/PC uniquement)
             setTimeout(() => {
                 if (deferredPrompt && !localStorage.getItem('installPromptDismissed') && !isIOS()) {
                     installPrompt.style.display = 'block';
@@ -1568,14 +1514,12 @@
             }, 5000);
         });
         
-        // Gérer l'installation pour iOS
         function showIOSInstallInstructions() {
             if (iosInstallModal && !isAppInstalled()) {
                 iosInstallModal.classList.add('active');
             }
         }
         
-        // Gérer l'installation
         function handleInstall() {
             if (isIOS()) {
                 showIOSInstallInstructions();
@@ -1600,39 +1544,23 @@
             }
         }
         
-        // Gestion des boutons d'installation
-        if (installNowBtn) {
-            installNowBtn.addEventListener('click', handleInstall);
-        }
+        if (installNowBtn) installNowBtn.addEventListener('click', handleInstall);
+        if (installAppBtn) installAppBtn.addEventListener('click', handleInstall);
+        if (installLaterBtn) installLaterBtn.addEventListener('click', () => {
+            installPrompt.style.display = 'none';
+            localStorage.setItem('installPromptDismissed', 'true');
+        });
+        if (closeIosModalBtn) closeIosModalBtn.addEventListener('click', () => {
+            iosInstallModal.classList.remove('active');
+        });
         
-        if (installAppBtn) {
-            installAppBtn.addEventListener('click', handleInstall);
-        }
-        
-        if (installLaterBtn) {
-            installLaterBtn.addEventListener('click', () => {
-                installPrompt.style.display = 'none';
-                localStorage.setItem('installPromptDismissed', 'true');
-            });
-        }
-        
-        if (closeIosModalBtn) {
-            closeIosModalBtn.addEventListener('click', () => {
-                iosInstallModal.classList.remove('active');
-            });
-        }
-        
-        // Masquer le prompt si l'app est déjà installée
         window.addEventListener('appinstalled', () => {
             installPrompt.style.display = 'none';
-            if (installAppBtn) {
-                installAppBtn.style.display = 'none';
-            }
+            if (installAppBtn) installAppBtn.style.display = 'none';
             deferredPrompt = null;
             console.log('Love Vibes a été installé avec succès');
         });
         
-        // Ajuster l'affichage du bouton d'installation selon la plateforme
         window.addEventListener('load', () => {
             if (installAppBtn) {
                 if (isIOS() && !isAppInstalled()) {
@@ -1650,13 +1578,11 @@
         // SERVICE WORKER REGISTRATION
         // ============================================
         
-        // Enregistrer le Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/sw.js').then(function(registration) {
                     console.log('ServiceWorker enregistré avec succès:', registration.scope);
                     
-                    // Vérifier les mises à jour du Service Worker
                     registration.addEventListener('updatefound', () => {
                         const newWorker = registration.installing;
                         console.log('Nouveau Service Worker trouvé:', newWorker);
@@ -1665,7 +1591,6 @@
                             if (newWorker.state === 'installed') {
                                 if (navigator.serviceWorker.controller) {
                                     console.log('Nouveau contenu disponible !');
-                                    // Ici vous pourriez afficher un prompt pour recharger
                                 }
                             }
                         });
@@ -1673,11 +1598,6 @@
                 }).catch(function(error) {
                     console.log('Échec de l\'enregistrement du ServiceWorker:', error);
                 });
-                
-                // Vérifier si la page a été ouverte par un Service Worker
-                if (navigator.serviceWorker.controller) {
-                    console.log('Cette page est contrôlée par un Service Worker');
-                }
             });
         }
 
@@ -1685,7 +1605,6 @@
         // NOTIFICATIONS PUSH
         // ============================================
         
-        // Gestion des permissions de notification
         function setupNotificationPermissionHandler() {
             const requestPermissionBtn = document.getElementById('btn-request-permission');
             const toggleNotifications = document.getElementById('toggle-notifications');
@@ -1701,10 +1620,8 @@
                                 localStorage.setItem('loveVibes_notificationsEnabled', 'true');
                             }
                             
-                            // Enregistrer le service worker pour les notifications
                             if ('serviceWorker' in navigator) {
                                 const registration = await navigator.serviceWorker.ready;
-                                // Utiliser votre propre clé VAPID ici
                                 const vapidKey = 'BLlK6SwxVAPY0k-3HInqlgj6aPE58dY4sxqGk10mRgrLpRhAe_BmH-qcuPZNN1X4z7tsjTSABgHmlBmDvglP9I0';
                                 try {
                                     const subscription = await registration.pushManager.subscribe({
@@ -1712,7 +1629,6 @@
                                         applicationServerKey: vapidKey
                                     });
                                     console.log('Abonnement aux notifications:', subscription);
-                                    // Envoyer l'abonnement à votre serveur
                                 } catch (error) {
                                     console.error('Erreur lors de l\'abonnement:', error);
                                 }
@@ -1732,7 +1648,6 @@
             }
         }
         
-        // Écouter les messages du Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.addEventListener('message', (event) => {
                 console.log('Message du Service Worker:', event.data);
@@ -1748,48 +1663,264 @@
                 }
             });
         }
-        
+
         // ============================================
-        // UTILITY FUNCTIONS
+        // MODULE 1: GESTION DES DISCUSSIONS (APPUI LONG)
         // ============================================
         
-        function showToast(msg) {
-            const toastEl = document.getElementById('toast');
-            if (toastEl) {
-                toastEl.textContent = msg;
-                toastEl.style.display = 'block';
-                setTimeout(() => toastEl.style.display = 'none', 3000);
+        let longPressTimer = null;
+        let currentLongPressChat = null;
+        const longPressModal = document.getElementById('long-press-modal');
+        const pinChatBtn = document.getElementById('pin-chat-btn');
+        const deleteChatBtn = document.getElementById('delete-chat-btn');
+        const cancelActionBtn = document.getElementById('cancel-action-btn');
+
+        // Fonction pour détecter l'appui long
+        function setupLongPressDetection() {
+            const chatList = document.getElementById('chat-list-container');
+            
+            chatList.addEventListener('touchstart', (e) => {
+                const chatItem = e.target.closest('.chat-item');
+                if (!chatItem) return;
+                
+                currentLongPressChat = chatItem;
+                longPressTimer = setTimeout(() => {
+                    showLongPressModal(chatItem);
+                }, 800); // 800ms pour l'appui long
+            });
+            
+            chatList.addEventListener('touchend', () => {
+                clearTimeout(longPressTimer);
+            });
+            
+            chatList.addEventListener('touchmove', () => {
+                clearTimeout(longPressTimer);
+            });
+        }
+
+        // Afficher le modal d'actions
+        function showLongPressModal(chatItem) {
+            const username = chatItem.querySelector('.chat-username')?.textContent || 'Utilisateur';
+            currentLongPressChat = chatItem;
+            
+            longPressModal.classList.add('active');
+            
+            // Vérifier si la discussion est déjà épinglée
+            const chatId = chatItem.dataset.chatId || getChatIdFromElement(chatItem);
+            const isPinned = localStorage.getItem(`pinned_${chatId}`) === 'true';
+            
+            if (isPinned) {
+                pinChatBtn.innerHTML = '<i class="fas fa-thumbtack"></i><span>Désépingler</span>';
+                pinChatBtn.dataset.action = 'unpin';
+            } else {
+                pinChatBtn.innerHTML = '<i class="fas fa-thumbtack"></i><span>Épingler la discussion</span>';
+                pinChatBtn.dataset.action = 'pin';
             }
         }
-        
-        // Initialiser les gestionnaires d'événements après le chargement
-        window.addEventListener('load', () => {
-            setupNotificationPermissionHandler();
+
+        function getChatIdFromElement(element) {
+            // Extrait l'ID de la discussion depuis l'élément
+            const usernameElement = element.querySelector('.chat-username');
+            if (usernameElement) {
+                const username = usernameElement.textContent.replace('@', '');
+                return `chat_${username}`;
+            }
+            return `chat_${Date.now()}`;
+        }
+
+        // Gérer l'action d'épingle
+        pinChatBtn.addEventListener('click', () => {
+            if (!currentLongPressChat) return;
             
+            const chatId = currentLongPressChat.dataset.chatId || getChatIdFromElement(currentLongPressChat);
+            
+            if (pinChatBtn.dataset.action === 'pin') {
+                // Épingler la discussion
+                localStorage.setItem(`pinned_${chatId}`, 'true');
+                currentLongPressChat.classList.add('pinned');
+                showToast('Discussion épinglée');
+                
+                // Déplacer vers la section épinglée
+                const pinnedSection = document.getElementById('pinned-chats-list');
+                pinnedSection.prepend(currentLongPressChat.cloneNode(true));
+                currentLongPressChat.remove();
+            } else {
+                // Désépingler la discussion
+                localStorage.removeItem(`pinned_${chatId}`);
+                currentLongPressChat.classList.remove('pinned');
+                showToast('Discussion désépinglée');
+                
+                // Déplacer vers la section récente
+                const recentSection = document.getElementById('recent-chats-list');
+                recentSection.prepend(currentLongPressChat.cloneNode(true));
+                currentLongPressChat.remove();
+            }
+            
+            longPressModal.classList.remove('active');
+        });
+
+        // Gérer la suppression de discussion
+        deleteChatBtn.addEventListener('click', () => {
+            if (!currentLongPressChat) return;
+            
+            const chatId = currentLongPressChat.dataset.chatId || getChatIdFromElement(currentLongPressChat);
+            const username = currentLongPressChat.querySelector('.chat-username')?.textContent || 'Utilisateur';
+            
+            // Enregistrer le timestamp de suppression
+            localStorage.setItem(`cleared_${chatId}`, Date.now().toString());
+            
+            // Marquer la discussion comme supprimée localement
+            currentLongPressChat.style.opacity = '0.5';
+            currentLongPressChat.style.pointerEvents = 'none';
+            
+            // Mettre à jour l'UI
+            const statusElement = currentLongPressChat.querySelector('.chat-status');
+            if (statusElement) {
+                statusElement.textContent = 'Discussion supprimée';
+                statusElement.style.color = '#ff6b6b';
+            }
+            
+            showToast('Discussion supprimée localement');
+            longPressModal.classList.remove('active');
+            
+            // Supprimer de la liste épinglée si c'est le cas
+            localStorage.removeItem(`pinned_${chatId}`);
+        });
+
+        // Annuler l'action
+        cancelActionBtn.addEventListener('click', () => {
+            longPressModal.classList.remove('active');
+            currentLongPressChat = null;
+        });
+
+        // Fermer le modal en cliquant à l'extérieur
+        longPressModal.addEventListener('click', (e) => {
+            if (e.target === longPressModal) {
+                longPressModal.classList.remove('active');
+                currentLongPressChat = null;
+            }
+        });
+
+        // Fonction pour filtrer les messages supprimés
+        function filterClearedMessages(messages, chatId) {
+            const clearTimestamp = parseInt(localStorage.getItem(`cleared_${chatId}`) || '0');
+            if (clearTimestamp === 0) return messages;
+            
+            return messages.filter(msg => {
+                const msgTimestamp = msg.timestamp ? msg.timestamp.toDate().getTime() : Date.now();
+                return msgTimestamp > clearTimestamp;
+            });
+        }
+
+        // ============================================
+        // MODULE 2: SYSTÈME DE THÈMES INTELLIGENT
+        // ============================================
+        
+        const themeButtons = document.querySelectorAll('.theme-btn');
+        const body = document.body;
+
+        // Générer un dégradé aléatoire agréable
+        function generateRandomGradient() {
+            const colors = [
+                ['#FF9A9E', '#FAD0C4'], // Rose doux
+                ['#A1C4FD', '#C2E9FB'], // Bleu pastel
+                ['#FFD1FF', '#FAD0C4'], // Lavande
+                ['#FFECD2', '#FCB69F'], // Pêche
+                ['#84FAB0', '#8FD3F4'], // Menthe
+                ['#D4FC79', '#96E6A1'], // Vert lime
+                ['#FDCBF1', '#E6DEE9'], // Rose pâle
+                ['#A3BFFA', '#6991C7'], // Bleu ciel
+                ['#FFECD2', '#FFB6C1'], // Corail
+                ['#E0C3FC', '#8EC5FC']  // Violet
+            ];
+            
+            const randomColors = colors[Math.floor(Math.random() * colors.length)];
+            return `linear-gradient(-45deg, ${randomColors[0]}, ${randomColors[1]})`;
+        }
+
+        // Appliquer un thème
+        function applyTheme(themeName) {
+            // Retirer tous les classes de thème
+            body.classList.remove('theme-dark', 'theme-light', 'theme-random');
+            
+            if (themeName === 'light') {
+                body.classList.add('theme-light');
+                // Forcer le texte noir pour le thème clair
+                document.documentElement.style.setProperty('--text-color', '#000000');
+            } else if (themeName === 'random') {
+                body.classList.add('theme-random');
+                const randomGradient = generateRandomGradient();
+                body.style.background = randomGradient;
+                // S'assurer que le texte est lisible
+                document.documentElement.style.setProperty('--text-color', '#000000');
+            } else {
+                // Thème sombre (par défaut)
+                body.classList.add('theme-dark');
+                body.style.background = '';
+                document.documentElement.style.setProperty('--text-color', '#ffffff');
+            }
+            
+            // Sauvegarder le thème
+            localStorage.setItem('loveVibes_theme', themeName);
+            
+            // Mettre à jour les boutons actifs
+            themeButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.theme === themeName) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            showToast(`Thème ${themeName} appliqué`);
+        }
+
+        // Charger le thème sauvegardé
+        function loadSavedTheme() {
+            const savedTheme = localStorage.getItem('loveVibes_theme') || 'dark';
+            applyTheme(savedTheme);
+        }
+
+        // Écouteurs pour les boutons de thème
+        themeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                applyTheme(theme);
+            });
+        });
+
+        // ============================================
+        // MODULE 3: REFONTE UX/UI PROFESSIONNELLE
+        // ============================================
+        
+        // Initialiser la barre de progression
+        function initializeProgressBar() {
+            const messagesSent = parseInt(localStorage.getItem('loveVibes_messagesSent') || '127');
+            const level = Math.floor(messagesSent / 100) + 1;
+            const progress = (messagesSent % 100);
+            
+            document.getElementById('user-level').textContent = level;
+            document.getElementById('user-points').textContent = `${messagesSent}/1000`;
+            document.getElementById('progress-percent').textContent = `${progress}%`;
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+        }
+
+        // Initialiser les préférences
+        function initializePreferences() {
             // Charger les couleurs sauvegardées
-            loadSavedColors();
+            const savedMyColor = localStorage.getItem('loveVibes_myColor') || '#ff69b4';
+            const savedPartnerColor = localStorage.getItem('loveVibes_partnerColor') || '#ffffff';
+            
+            document.documentElement.style.setProperty('--my-chat-color', savedMyColor);
+            document.documentElement.style.setProperty('--partner-chat-color', savedPartnerColor + '26'); // Ajouter opacité
+            
+            // Mettre à jour les color pickers
+            const myColorPicker = document.getElementById('my-color-picker');
+            const partnerColorPicker = document.getElementById('partner-color-picker');
+            
+            if (myColorPicker) myColorPicker.value = savedMyColor;
+            if (partnerColorPicker) partnerColorPicker.value = savedPartnerColor;
             
             // Charger les préférences de notification
-            loadNotificationPreferences();
-            
-            // Initialiser les statistiques du profil
-            initializeProfileStats();
-        });
-        
-        // Fonctions utilitaires pour les couleurs
-        function loadSavedColors() {
-            const savedMyColor = localStorage.getItem('loveVibes_myColor');
-            const savedPartnerColor = localStorage.getItem('loveVibes_partnerColor');
-            
-            if (savedMyColor) {
-                document.documentElement.style.setProperty('--my-chat-color', savedMyColor);
-            }
-            if (savedPartnerColor) {
-                document.documentElement.style.setProperty('--partner-chat-color', savedPartnerColor);
-            }
-        }
-        
-        function loadNotificationPreferences() {
             const notificationsEnabled = localStorage.getItem('loveVibes_notificationsEnabled') === 'true';
             const soundEnabled = localStorage.getItem('loveVibes_soundEnabled') !== 'false';
             const vibrationEnabled = localStorage.getItem('loveVibes_vibrationEnabled') !== 'false';
@@ -1802,35 +1933,90 @@
             if (toggleSound) toggleSound.checked = soundEnabled;
             if (toggleVibration) toggleVibration.checked = vibrationEnabled;
         }
-        
-        // Initialiser les statistiques du profil
-        function initializeProfileStats() {
-            // Date d'inscription (simulée)
-            const memberSince = localStorage.getItem('loveVibes_memberSince');
-            if (!memberSince) {
-                const today = new Date();
-                const formattedDate = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-                localStorage.setItem('loveVibes_memberSince', formattedDate);
-                document.getElementById('member-since').textContent = formattedDate;
-            } else {
-                document.getElementById('member-since').textContent = memberSince;
+
+        // Sauvegarder les couleurs
+        document.getElementById('btn-save-colors')?.addEventListener('click', () => {
+            const myColor = document.getElementById('my-color-picker').value;
+            const partnerColor = document.getElementById('partner-color-picker').value;
+            
+            localStorage.setItem('loveVibes_myColor', myColor);
+            localStorage.setItem('loveVibes_partnerColor', partnerColor);
+            
+            document.documentElement.style.setProperty('--my-chat-color', myColor);
+            document.documentElement.style.setProperty('--partner-chat-color', partnerColor + '26');
+            
+            showToast('Couleurs enregistrées !');
+        });
+
+        // Vider le cache
+        document.getElementById('btn-clear-cache')?.addEventListener('click', () => {
+            const clearedChats = [];
+            
+            // Trouver tous les chats supprimés localement
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('cleared_')) {
+                    clearedChats.push(key);
+                }
             }
             
-            // Messages envoyés (simulés)
-            const messagesSent = localStorage.getItem('loveVibes_messagesSent') || '127';
-            document.getElementById('messages-sent').textContent = messagesSent;
-            
-            // Bio sauvegardée
-            const savedBio = localStorage.getItem('loveVibes_bio') || 'Amoureux de Wendy 🥰';
-            document.getElementById('profile-bio').value = savedBio;
-            
-            // Sauvegarder la bio
-            document.getElementById('save-bio-btn').addEventListener('click', () => {
-                const bioText = document.getElementById('profile-bio').value;
-                localStorage.setItem('loveVibes_bio', bioText);
-                showToast('Bio enregistrée !');
+            // Supprimer les données de cache
+            clearedChats.forEach(key => {
+                localStorage.removeItem(key);
             });
+            
+            showToast(`Cache vidé (${clearedChats.length} discussions restaurées)`);
+        });
+
+        // ============================================
+        // FONCTIONS UTILITAIRES
+        // ============================================
+        
+        function showToast(msg) {
+            const toastEl = document.getElementById('toast');
+            if (toastEl) {
+                toastEl.textContent = msg;
+                toastEl.style.display = 'block';
+                setTimeout(() => toastEl.style.display = 'none', 3000);
+            }
         }
+
+        function setBtnLoading(btnId, isLoading) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            
+            const loader = btn.querySelector('.btn-loader');
+            if (isLoading) {
+                btn.disabled = true;
+                if (loader) loader.style.display = 'block';
+            } else {
+                btn.disabled = false;
+                if (loader) loader.style.display = 'none';
+            }
+        }
+
+        // Initialiser toutes les fonctionnalités
+        window.addEventListener('load', () => {
+            // Charger les préférences
+            loadSavedTheme();
+            initializePreferences();
+            initializeProgressBar();
+            
+            // Initialiser les gestionnaires
+            setupNotificationPermissionHandler();
+            setupLongPressDetection();
+            
+            // Masquer l'écran de chargement
+            setTimeout(() => {
+                document.getElementById('splash-screen').classList.add('fade-out');
+                document.getElementById('app-container').style.display = 'block';
+                
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                }, 500);
+            }, 1500);
+        });
+
     </script>
 
     <!-- FIREBASE SDK -->
@@ -1863,11 +2049,7 @@
         let unsubscribeRecentChats = null;
         let typingTimeout = null;
         let typingInactivityTimer = null;
-        let replyingTo = null;
         const TYPING_INACTIVITY_TIMEOUT = 4000;
-
-        // Référence pour l'indicateur de saisie
-        let typingBubbleElement = null;
 
         // --- DOM ---
         const views = {
@@ -1881,183 +2063,9 @@
         const nav = document.getElementById('main-nav');
         const toastEl = document.getElementById('toast');
         const messagesContainer = document.getElementById('messages-container');
-        const replyPreview = document.getElementById('reply-preview');
-        const replyPreviewSender = document.getElementById('reply-preview-sender');
-        const replyPreviewText = document.getElementById('reply-preview-text');
-        const cancelReplyBtn = document.getElementById('cancel-reply-btn');
         const msgInput = document.getElementById('msg-input');
         const splashScreen = document.getElementById('splash-screen');
         const appContainer = document.getElementById('app-container');
-        const notificationSound = document.getElementById('notification-sound');
-
-        // --- GESTION DES COULEURS ---
-        const myColorPreview = document.getElementById('my-color-preview');
-        const partnerColorPreview = document.getElementById('partner-color-preview');
-        const myColorPicker = document.getElementById('my-color-picker');
-        const partnerColorPicker = document.getElementById('partner-color-picker');
-        const saveColorsBtn = document.getElementById('btn-save-colors');
-        const resetColorsBtn = document.getElementById('btn-reset-colors');
-        const colorOptions = document.querySelectorAll('.color-option-item');
-
-        // Charger les couleurs sauvegardées
-        function loadSavedColors() {
-            const savedMyColor = localStorage.getItem('loveVibes_myColor');
-            const savedPartnerColor = localStorage.getItem('loveVibes_partnerColor');
-            
-            if (savedMyColor) {
-                document.documentElement.style.setProperty('--my-chat-color', savedMyColor);
-                if (myColorPreview) myColorPreview.style.background = savedMyColor;
-                if (myColorPicker) myColorPicker.value = savedMyColor;
-                
-                // Activer l'option correspondante
-                document.querySelectorAll('.color-option-item').forEach(item => {
-                    if (item.dataset.color === savedMyColor) {
-                        item.classList.add('active');
-                    }
-                });
-            }
-            
-            if (savedPartnerColor) {
-                document.documentElement.style.setProperty('--partner-chat-color', savedPartnerColor);
-                if (partnerColorPreview) partnerColorPreview.style.background = savedPartnerColor;
-                
-                // Pour les couleurs rgba, on convertit en hex pour le color picker
-                if (savedPartnerColor.includes('rgba')) {
-                    const rgb = savedPartnerColor.match(/\d+/g);
-                    if (rgb && rgb.length >= 3) {
-                        const hex = rgbToHex(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
-                        if (partnerColorPicker) partnerColorPicker.value = hex;
-                    }
-                }
-                
-                // Activer l'option correspondante
-                document.querySelectorAll('.color-option-item').forEach(item => {
-                    if (item.dataset.color === savedPartnerColor) {
-                        item.classList.add('active');
-                    }
-                });
-            }
-        }
-
-        // Convertir RGB en HEX
-        function rgbToHex(r, g, b) {
-            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-        }
-
-        // Sauvegarder les couleurs
-        function saveColors() {
-            const myColor = myColorPicker.value;
-            const partnerColor = partnerColorPreview.style.backgroundColor;
-            
-            localStorage.setItem('loveVibes_myColor', myColor);
-            localStorage.setItem('loveVibes_partnerColor', partnerColor);
-            
-            document.documentElement.style.setProperty('--my-chat-color', myColor);
-            document.documentElement.style.setProperty('--partner-chat-color', partnerColor);
-            
-            showToast('Couleurs enregistrées !');
-        }
-
-        // Réinitialiser les couleurs
-        function resetColors() {
-            localStorage.removeItem('loveVibes_myColor');
-            localStorage.removeItem('loveVibes_partnerColor');
-            
-            document.documentElement.style.setProperty('--my-chat-color', '#ff69b4');
-            document.documentElement.style.setProperty('--partner-chat-color', 'rgba(255, 255, 255, 0.15)');
-            
-            if (myColorPreview) myColorPreview.style.background = '#ff69b4';
-            if (partnerColorPreview) partnerColorPreview.style.background = 'rgba(255, 255, 255, 0.15)';
-            if (myColorPicker) myColorPicker.value = '#ff69b4';
-            
-            // Réactiver les options par défaut
-            document.querySelectorAll('.color-option-item').forEach(item => {
-                item.classList.remove('active');
-                if (item.dataset.color === '#ff69b4' || item.dataset.color === 'rgba(255,255,255,0.15)') {
-                    item.classList.add('active');
-                }
-            });
-            
-            showToast('Couleurs réinitialisées');
-        }
-
-        // Gestion des événements de couleur
-        if (myColorPreview && myColorPicker) {
-            myColorPreview.addEventListener('click', () => {
-                myColorPicker.click();
-            });
-            
-            myColorPicker.addEventListener('input', (e) => {
-                myColorPreview.style.background = e.target.value;
-                document.querySelectorAll('.color-option-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-            });
-        }
-
-        if (partnerColorPreview && partnerColorPicker) {
-            partnerColorPreview.addEventListener('click', () => {
-                partnerColorPicker.click();
-            });
-            
-            partnerColorPicker.addEventListener('input', (e) => {
-                const hex = e.target.value;
-                const rgb = hexToRgb(hex);
-                const rgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.2)`;
-                partnerColorPreview.style.background = rgba;
-                document.querySelectorAll('.color-option-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-            });
-        }
-
-        // Convertir HEX en RGB
-        function hexToRgb(hex) {
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : {r: 255, g: 255, b: 255};
-        }
-
-        // Gestion des options de couleur prédéfinies
-        colorOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                const color = option.dataset.color;
-                const parent = option.closest('.color-picker');
-                
-                if (parent) {
-                    const preview = parent.querySelector('.color-preview');
-                    if (preview) {
-                        preview.style.background = color;
-                        
-                        // Désactiver toutes les options du même groupe
-                        parent.querySelectorAll('.color-option-item').forEach(item => {
-                            item.classList.remove('active');
-                        });
-                        
-                        // Activer l'option sélectionnée
-                        option.classList.add('active');
-                        
-                        // Mettre à jour le color picker si c'est une couleur hex
-                        if (color.startsWith('#') && parent.id.includes('my')) {
-                            if (myColorPicker) myColorPicker.value = color;
-                        }
-                    }
-                }
-            });
-        });
-
-        // Sauvegarder les couleurs
-        if (saveColorsBtn) {
-            saveColorsBtn.addEventListener('click', saveColors);
-        }
-
-        // Réinitialiser les couleurs
-        if (resetColorsBtn) {
-            resetColorsBtn.addEventListener('click', resetColors);
-        }
 
         // --- UTILS ---
         function showToast(msg) {
@@ -2106,31 +2114,6 @@
                 }
             }, 50);
         }
-
-        // Vibration haptique
-        function hapticFeedback() {
-            const vibrationEnabled = localStorage.getItem('loveVibes_vibrationEnabled') !== 'false';
-            if (vibrationEnabled && 'vibrate' in navigator) {
-                navigator.vibrate(50);
-            }
-        }
-
-        // --- INITIALISATION ---
-        window.addEventListener('load', () => {
-            // Charger les préférences
-            loadSavedColors();
-            
-            // Masquer l'écran de chargement après 1.5 secondes
-            setTimeout(() => {
-                splashScreen.classList.add('fade-out');
-                appContainer.style.display = 'block';
-                
-                // Après l'animation, cacher complètement
-                setTimeout(() => {
-                    splashScreen.style.display = 'none';
-                }, 500);
-            }, 1500);
-        });
 
         // --- AUTH ---
         document.getElementById('show-register').addEventListener('click', () => {
@@ -2220,7 +2203,7 @@
                     document.getElementById('profile-username-display').textContent = '@' + currentUserData.username;
                     document.getElementById('my-avatar').textContent = currentUserData.prenom.charAt(0);
                     
-                    // Charger la bio depuis Firebase ou localStorage
+                    // Charger la bio
                     const bio = currentUserData.bio || localStorage.getItem('loveVibes_bio') || 'Amoureux de Wendy 🥰';
                     document.getElementById('profile-bio').value = bio;
                     
@@ -2233,15 +2216,15 @@
                     }
                     
                     if (currentUserData.messagesCount !== undefined) {
-                        document.getElementById('messages-sent').textContent = currentUserData.messagesCount;
                         localStorage.setItem('loveVibes_messagesSent', currentUserData.messagesCount);
                     }
                     
+                    // Initialiser la barre de progression
+                    initializeProgressBar();
                     loadRecentChats();
                 }
             } else { 
                 switchView('auth'); 
-                clearTypingTimers();
             }
         });
 
@@ -2250,27 +2233,58 @@
             if (unsubscribeRecentChats) unsubscribeRecentChats();
             const q = query(collection(db, "chats"), where("participants", "array-contains", currentUserData.username));
             unsubscribeRecentChats = onSnapshot(q, (snapshot) => {
-                const listContainer = document.getElementById('recent-chats-list');
-                listContainer.innerHTML = '';
+                const pinnedList = document.getElementById('pinned-chats-list');
+                const recentList = document.getElementById('recent-chats-list');
+                pinnedList.innerHTML = '';
+                recentList.innerHTML = '';
                 
                 if(snapshot.empty) { 
-                    listContainer.innerHTML = '<div style="text-align:center; opacity:0.5;">Aucune discussion récente.</div>'; 
+                    recentList.innerHTML = '<div style="text-align:center; opacity:0.5;">Aucune discussion récente.</div>'; 
                     return; 
                 }
                 
                 snapshot.forEach((docSnap) => {
                     const chatData = docSnap.data();
                     const otherUser = chatData.participants.find(p => p !== currentUserData.username);
+                    const chatId = `chat_${otherUser}`;
+                    
+                    // Vérifier si la discussion est épinglée
+                    const isPinned = localStorage.getItem(`pinned_${chatId}`) === 'true';
+                    
                     const div = document.createElement('div');
-                    div.className = 'user-card glass-panel';
-                    div.style.background = 'transparent';
-                    div.innerHTML = `<div class="avatar">${otherUser.charAt(0).toUpperCase()}</div><div><div style="font-weight:600">@${otherUser}</div><div style="font-size:0.8rem; opacity:0.7">Discuter</div></div>`;
+                    div.className = isPinned ? 'chat-item pinned' : 'chat-item';
+                    div.dataset.chatId = chatId;
+                    div.innerHTML = `
+                        <div class="avatar">${otherUser.charAt(0).toUpperCase()}</div>
+                        <div>
+                            <div class="chat-username" style="font-weight:600">@${otherUser}</div>
+                            <div class="chat-status" style="font-size:0.8rem; opacity:0.7">Discuter</div>
+                        </div>
+                    `;
+                    
+                    // Ajouter l'événement d'appui long
+                    let longPressTimer;
+                    div.addEventListener('touchstart', (e) => {
+                        longPressTimer = setTimeout(() => {
+                            // Géré par le module d'appui long
+                        }, 800);
+                    });
+                    
+                    div.addEventListener('touchend', () => {
+                        clearTimeout(longPressTimer);
+                    });
+                    
                     div.addEventListener('click', async () => {
                         const userQ = query(collection(db, "users"), where("username", "==", otherUser));
                         const userSnap = await getDocs(userQ);
                         if(!userSnap.empty) openChat(userSnap.docs[0].data());
                     });
-                    listContainer.appendChild(div);
+                    
+                    if (isPinned) {
+                        pinnedList.appendChild(div);
+                    } else {
+                        recentList.appendChild(div);
+                    }
                 });
             });
         }
@@ -2298,7 +2312,7 @@
                     const data = doc.data();
                     if (data.uid === currentUserData.uid) return;
                     const div = document.createElement('div');
-                    div.className = 'user-card glass-panel';
+                    div.className = 'chat-item';
                     div.innerHTML = `<div class="avatar">${data.prenom.charAt(0)}</div><div><div style="font-weight:600">${data.prenom}</div><div style="font-size:0.8rem; opacity:0.7">@${data.username}</div></div>`;
                     div.addEventListener('click', () => openChat(data));
                     resultsDiv.appendChild(div);
@@ -2320,25 +2334,10 @@
             document.getElementById('chat-username').textContent = partnerData.prenom;
             document.getElementById('chat-avatar').textContent = partnerData.prenom.charAt(0);
             
-            cancelReply();
-            clearTypingTimers();
-            
             messagesContainer.innerHTML = '';
-            
-            typingBubbleElement = document.createElement('div');
-            typingBubbleElement.className = 'typing-bubble';
-            typingBubbleElement.innerHTML = `
-                <div class="typing-dots-container">
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                </div>
-            `;
-            messagesContainer.appendChild(typingBubbleElement);
             
             switchView('room');
             listenToMessages();
-            listenForTyping();
 
             await setDoc(doc(db, "chats", currentChatId), { 
                 participants: [currentUserData.username, chatPartnerUsername],
@@ -2352,25 +2351,15 @@
         document.getElementById('btn-back-chat').addEventListener('click', () => {
             if(unsubscribeMessages) unsubscribeMessages();
             if(unsubscribeTyping) unsubscribeTyping();
-            clearTypingTimers();
-            cancelReply();
             switchView('search');
         });
 
-        function clearTypingTimers() {
-            if (typingTimeout) clearTimeout(typingTimeout);
-            if (typingInactivityTimer) clearTimeout(typingInactivityTimer);
-            typingTimeout = null;
-            typingInactivityTimer = null;
-        }
-
-        // --- 1. LISTEN TO MESSAGES ---
+        // LISTEN TO MESSAGES
         function listenToMessages() {
             const q = query(collection(db, `chats/${currentChatId}/messages`), orderBy("timestamp", "asc"));
             
             unsubscribeMessages = onSnapshot(q, (snapshot) => {
-                messagesContainer.innerHTML = ''; 
-                messagesContainer.appendChild(typingBubbleElement);
+                messagesContainer.innerHTML = '';
 
                 snapshot.forEach(doc => {
                     appendMessageToDOM(doc.data());
@@ -2385,11 +2374,6 @@
             
             const div = document.createElement('div');
             div.className = `msg-bubble ${isMe ? 'mine' : 'theirs'}`;
-            div.dataset.sender = msg.sender;
-            div.dataset.text = msg.text;
-            div.dataset.senderName = msg.senderName;
-            
-            addSwipeListeners(div);
             
             let displayTime = "";
             if (msg.timestamp) {
@@ -2399,24 +2383,13 @@
                 displayTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
 
-            let replyHtml = '';
-            if (msg.replyTo) {
-                replyHtml = `
-                    <div class="reply-to-container">
-                        <div class="reply-to-sender">${msg.replyTo.senderName}</div>
-                        <div class="reply-to-text">${msg.replyTo.text}</div>
-                    </div>
-                `;
-            }
-
             div.innerHTML = `
                 <span class="msg-sender">${isMe ? 'Moi' : msg.senderName}</span>
-                ${replyHtml}
                 ${msg.text}
                 <span class="msg-time">${displayTime}</span>
             `;
             
-            messagesContainer.insertBefore(div, typingBubbleElement);
+            messagesContainer.appendChild(div);
             
             // Incrémenter le compteur de messages si c'est notre message
             if (isMe) {
@@ -2424,103 +2397,11 @@
                 const newCount = currentCount + 1;
                 localStorage.setItem('loveVibes_messagesSent', newCount.toString());
                 document.getElementById('messages-sent').textContent = newCount;
+                initializeProgressBar();
             }
         }
 
-        // --- 2. SWIPE TO REPLY SYSTEM ---
-        function addSwipeListeners(element) {
-            let startX, startY, distX, distY;
-            const threshold = 50;
-            const allowedTime = 300;
-            let elapsedTime, startTime;
-            let isScrolling;
-
-            element.addEventListener('touchstart', function(e) {
-                if (replyingTo) return;
-                
-                const touch = e.touches[0];
-                startX = touch.pageX;
-                startY = touch.pageY;
-                startTime = new Date().getTime();
-                isScrolling = undefined;
-                e.preventDefault();
-            }, { passive: false });
-
-            element.addEventListener('touchmove', function(e) {
-                if (!startX || !startY || replyingTo) return;
-                
-                const touch = e.touches[0];
-                distX = touch.pageX - startX;
-                distY = touch.pageY - startY;
-                
-                if (typeof isScrolling === 'undefined') {
-                    isScrolling = Math.abs(distY) > Math.abs(distX);
-                }
-                
-                if (!isScrolling && distX < 0) {
-                    e.preventDefault();
-                    element.style.transform = `translateX(${Math.max(distX, -100)}px)`;
-                    element.classList.add('swiping');
-                }
-            }, { passive: false });
-
-            element.addEventListener('touchend', function(e) {
-                if (!startX || !startY || replyingTo || isScrolling) {
-                    resetSwipe(element);
-                    return;
-                }
-                
-                elapsedTime = new Date().getTime() - startTime;
-                
-                if (elapsedTime <= allowedTime && distX < -threshold) {
-                    const senderName = element.dataset.senderName;
-                    const text = element.dataset.text;
-                    const sender = element.dataset.sender;
-                    
-                    setReplyMode({
-                        text: text,
-                        senderName: senderName,
-                        sender: sender
-                    });
-                    
-                    scrollToBottom();
-                }
-                
-                resetSwipe(element);
-            });
-
-            function resetSwipe(el) {
-                el.style.transform = '';
-                el.classList.remove('swiping');
-                startX = null;
-                startY = null;
-                distX = null;
-                distY = null;
-            }
-        }
-
-        function setReplyMode(replyData) {
-            replyingTo = replyData;
-            replyPreviewSender.textContent = replyData.senderName;
-            replyPreviewText.textContent = replyData.text.length > 50 
-                ? replyData.text.substring(0, 50) + '...' 
-                : replyData.text;
-            
-            replyPreview.classList.add('active');
-            messagesContainer.classList.add('with-reply-preview');
-            msgInput.focus();
-            scrollToBottom();
-        }
-
-        function cancelReply() {
-            replyingTo = null;
-            replyPreview.classList.remove('active');
-            messagesContainer.classList.remove('with-reply-preview');
-        }
-
-        cancelReplyBtn.addEventListener('click', cancelReply);
-
-        // --- 3. SEND MESSAGE ---
+        // SEND MESSAGE
         document.getElementById('btn-send').addEventListener('click', sendMessage);
         document.getElementById('msg-input').addEventListener('keypress', (e) => { 
             if(e.key === 'Enter') sendMessage(); 
@@ -2537,83 +2418,11 @@
                 senderName: currentUserData.prenom,
                 timestamp: serverTimestamp()
             };
-
-            if (replyingTo) {
-                messageData.replyTo = {
-                    text: replyingTo.text,
-                    senderName: replyingTo.senderName,
-                    sender: replyingTo.sender
-                };
-            }
-
-            // Haptic feedback
-            hapticFeedback();
             
             await addDoc(collection(db, `chats/${currentChatId}/messages`), messageData);
             
             input.value = '';
-            if (replyingTo) {
-                cancelReply();
-            }
-            
             scrollToBottom(); 
-        }
-
-        // --- 4. INDICATEUR DE SAISIE (Corrigé) ---
-        document.getElementById('msg-input').addEventListener('input', () => { 
-            updateTypingStatus(true);
-            resetTypingInactivityTimer();
-        });
-
-        function resetTypingInactivityTimer() {
-            if (typingInactivityTimer) {
-                clearTimeout(typingInactivityTimer);
-            }
-            
-            typingInactivityTimer = setTimeout(() => {
-                updateTypingStatus(false);
-            }, TYPING_INACTIVITY_TIMEOUT);
-        }
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                updateTypingStatus(false);
-            }
-        });
-
-        window.addEventListener('beforeunload', () => {
-            updateTypingStatus(false);
-        });
-
-        async function updateTypingStatus(isTyping) {
-            if(!currentChatId || !currentUserData) return;
-            
-            try {
-                const chatRef = doc(db, "chats", currentChatId);
-                const updateData = {};
-                
-                updateData[`typing.${currentUserData.username}`] = isTyping;
-                
-                await updateDoc(chatRef, updateData);
-            } catch (error) {
-                console.error("Erreur mise à jour typing status:", error);
-            }
-        }
-
-        function listenForTyping() {
-            unsubscribeTyping = onSnapshot(doc(db, "chats", currentChatId), (docSnap) => {
-                if(docSnap.exists()) {
-                    const data = docSnap.data();
-                    
-                    if (data.typing && data.typing[chatPartnerUsername] === true) {
-                        typingBubbleElement.style.display = 'flex';
-                        messagesContainer.appendChild(typingBubbleElement);
-                        scrollToBottom();
-                    } else {
-                        typingBubbleElement.style.display = 'none';
-                    }
-                }
-            });
         }
 
         // --- PROFILE ---
@@ -2626,17 +2435,14 @@
             
             setBtnLoading('btn-save-profile', true);
             try {
-                // Vérifier si le nom d'utilisateur est disponible
                 const q = query(collection(db, "users"), where("username", "==", newName));
                 const snap = await getDocs(q);
                 if(!snap.empty) throw new Error("Nom d'utilisateur déjà pris");
                 
-                // Mettre à jour dans Firebase
                 await updateDoc(doc(db, "users", currentUserData.uid), { 
                     username: newName 
                 });
                 
-                // Mettre à jour l'état local
                 currentUserData.username = newName;
                 document.getElementById('profile-username-display').textContent = '@' + newName;
                 
