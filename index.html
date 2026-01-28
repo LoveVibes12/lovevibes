@@ -54,11 +54,12 @@
             touch-action: manipulation;
         }
 
+        /* CORRECTION URGENTE 1: DÉFILEMENT BLOQUÉ */
+        /* Suppression du overflow: hidden sur html et body */
         html, body {
             width: 100%;
             height: 100%;
-            overflow: hidden;
-            position: fixed;
+            position: relative; /* Changé de fixed à relative */
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: none; /* Empêche le scroll-rebond */
         }
@@ -75,6 +76,7 @@
             overscroll-behavior: none;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden; /* Permet seulement le défilement vertical */
         }
 
         @keyframes gradientBG {
@@ -152,6 +154,7 @@
             margin: 0 auto;
             width: 100%;
             display: none; /* Caché au début */
+            min-height: calc(100vh - 80px); /* Hauteur minimale moins le footer */
         }
 
         .view {
@@ -166,19 +169,33 @@
             opacity: 1;
         }
 
-        /* --- CORRECTION BUG SCROLL MOBILE --- */
-        /* Pages Paramètres et Profil avec scroll vertical autorisé */
-        #view-settings, #view-profile {
-            min-height: 100vh;
+        /* --- CORRECTION BUG SCROLL MOBILE - URGENCE 1 --- */
+        /* Conteneurs principaux avec scroll autorisé */
+        #view-chat-search, #view-settings, #view-profile {
+            min-height: calc(100vh - 140px);
             height: auto;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 100px; /* Espace pour la navigation du bas */
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding-bottom: 20px;
         }
 
-        .settings-container, .profile-content {
+        /* Assurer que le contenu peut défiler */
+        .settings-container, .profile-content, .chat-list {
             flex: 1;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 20px;
+        }
+
+        /* S'assurer que le contenu n'est pas caché derrière le header/footer */
+        #view-chat-search {
+            padding-top: 10px;
+            padding-bottom: 100px;
+        }
+
+        #view-settings, #view-profile {
+            padding-top: 10px;
+            padding-bottom: 120px;
         }
 
         /* --- Typography --- */
@@ -191,23 +208,50 @@
             font-weight: 700;
         }
 
+        /* CORRECTION URGENTE 2: VISIBILITÉ DES CHAMPS DE SAISIE */
+        /* Cibler tous les champs de saisie */
         input, textarea {
             width: 100%;
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 12px;
-            border: 1px solid var(--glass-border);
-            background: var(--input-bg);
-            color: white;
+            border: 1px solid rgba(0, 0, 0, 0.3) !important; /* Bordure visible */
+            background: #ffffff !important; /* Fond blanc solide */
+            color: #000000 !important; /* Texte noir */
             font-family: 'Poppins', sans-serif;
             transition: 0.3s;
             font-size: 16px; /* Évite le zoom sur iOS */
             resize: vertical;
+            -webkit-appearance: none; /* Désactiver le style natif iOS */
+            appearance: none;
+        }
+
+        /* Style spécifique pour les champs d'authentification */
+        #login-form input,
+        #register-form input,
+        #profile-bio,
+        #profile-username-edit,
+        #profile-email-edit,
+        #search-input,
+        #msg-input {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #ccc !important;
+            border-radius: 12px !important;
+        }
+
+        /* Placeholder visible */
+        input::placeholder,
+        textarea::placeholder {
+            color: #666 !important;
+            opacity: 0.8;
         }
 
         input:focus, textarea:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--pink-accent);
+            background: #ffffff !important;
+            color: #000000 !important;
+            border-color: var(--pink-accent) !important;
+            outline: none;
         }
 
         button.btn-primary {
@@ -283,6 +327,7 @@
             overflow-y: auto; 
             padding-right: 5px; 
             -webkit-overflow-scrolling: touch;
+            min-height: 300px;
         }
 
         .user-card {
@@ -583,7 +628,13 @@
             padding: 12px 50px 12px 15px;
             margin: 0;
             border-radius: 25px;
-            background: var(--input-bg);
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #ccc !important;
+        }
+
+        .chat-input-wrapper input::placeholder {
+            color: #666 !important;
         }
 
         /* --- INDICATEUR DE SAISIE --- */
@@ -653,6 +704,7 @@
             flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            min-height: calc(100vh - 200px);
         }
 
         .settings-section {
@@ -789,6 +841,7 @@
             flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            min-height: calc(100vh - 200px);
         }
 
         .profile-section {
@@ -1085,6 +1138,12 @@
             .stats-card {
                 grid-template-columns: 1fr;
             }
+            
+            /* Ajustements pour le défilement mobile */
+            #view-chat-search, #view-settings, #view-profile {
+                min-height: calc(100vh - 120px);
+                padding-bottom: 80px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1098,6 +1157,12 @@
             
             .profile-content, .settings-container {
                 padding: 20px 15px;
+            }
+            
+            /* Ajustements pour les champs de saisie sur petits écrans */
+            input, textarea {
+                padding: 12px;
+                font-size: 14px;
             }
         }
 
@@ -1115,6 +1180,11 @@
             .bottom-nav {
                 height: calc(60px + env(safe-area-inset-bottom));
                 padding-bottom: env(safe-area-inset-bottom);
+            }
+            
+            /* Ajustements supplémentaires pour le défilement en PWA */
+            #view-chat-search, #view-settings, #view-profile {
+                min-height: calc(100vh - 140px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
             }
         }
     </style>
