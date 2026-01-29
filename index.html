@@ -717,6 +717,89 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        /* Indicateur de présence dans le header */
+        .presence-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-top: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            box-shadow: 0 0 8px #4CAF50;
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.7; transform: scale(1); }
+        }
+
+        /* Indicateur de saisie en temps réel */
+        .typing-indicator-container {
+            padding: 10px 15px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .typing-indicator-container.visible {
+            opacity: 1;
+        }
+
+        .typing-bubble {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            background: var(--partner-chat-color);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 18px;
+            border: 1px solid var(--glass-border);
+            max-width: 120px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--text-color);
+            opacity: 0.6;
+            animation: liquidGlassTyping 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes liquidGlassTyping {
+            0%, 80%, 100% { 
+                transform: translateY(0);
+                opacity: 0.6;
+                background-color: var(--text-color);
+            }
+            40% { 
+                transform: translateY(-6px);
+                opacity: 1;
+                background-color: var(--pink-accent);
+                box-shadow: 0 0 6px var(--pink-accent);
+            }
         }
 
         #chat-messages-wrapper {
@@ -1290,74 +1373,6 @@
             animation: fadeIn 0.3s ease;
         }
 
-        /* =========================================
-           MODULE PRESENCE & TYPING (NOUVEAU CSS)
-           ========================================= */
-        
-        /* Point vert En ligne dans le Header */
-        .online-indicator {
-            width: 10px;
-            height: 10px;
-            background-color: #2ecc71;
-            border-radius: 50%;
-            border: 2px solid var(--glass-bg);
-            display: inline-block;
-            margin-left: 6px;
-            margin-bottom: 2px;
-            box-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
-        }
-
-        /* Texte 'En ligne il y a...' */
-        .last-seen-text {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6); /* Gris blanc par défaut */
-            margin-left: 5px;
-            font-style: italic;
-        }
-
-        .theme-light .last-seen-text {
-            color: rgba(0, 0, 0, 0.5); /* Gris foncé pour thème clair */
-        }
-
-        /* Bulle de saisie (...) en bas des messages */
-        .typing-bubble {
-            align-self: flex-start;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 18px;
-            padding: 10px 20px;
-            margin-bottom: 10px;
-            display: none; /* Caché par défaut */
-            align-items: center;
-            gap: 4px;
-            width: fit-content;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background-color: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            animation: typingBounce 1.4s infinite ease-in-out both;
-        }
-        
-        .theme-light .typing-dot {
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes typingBounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-        /* =========================================
-           FIN MODULE PRESENCE & TYPING CSS
-           ========================================= */
-
         /* Ajustements responsifs */
         @media (max-width: 768px) {
             #view-chat-search, #view-settings, #view-profile {
@@ -1575,8 +1590,10 @@
                     <div class="avatar" id="chat-avatar">?</div>
                     <div style="flex:1">
                         <h3 id="chat-username">Utilisateur</h3>
-                        <!-- Indicateurs de présence insérés ici par JS -->
-                        <div id="presence-indicator-container" style="font-size: 0.8rem; display: flex; align-items: center;"></div>
+                        <!-- Indicateur de présence -->
+                        <div class="presence-status" id="presence-status">
+                            <span id="last-seen-text">Chargement...</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -1585,8 +1602,11 @@
                     <!-- Zone de messages scrollable -->
                     <div id="messages-container">
                         <!-- Les messages s'affichent ici dynamiquement -->
-                        <!-- Indicateur de saisie injecté ici par JS -->
-                        <div id="typing-indicator" class="typing-bubble">
+                    </div>
+                    
+                    <!-- Indicateur de saisie en temps réel -->
+                    <div class="typing-indicator-container" id="typing-indicator">
+                        <div class="typing-bubble">
                             <div class="typing-dot"></div>
                             <div class="typing-dot"></div>
                             <div class="typing-dot"></div>
@@ -1822,19 +1842,6 @@
                     </div>
                     
                     <div class="settings-group">
-                        <!-- MODULE 3: CONFIDENTIALITÉ (PRIVACY) -->
-                        <div class="settings-item">
-                            <div class="settings-item-label">
-                                <i class="fas fa-eye"></i>
-                                <span>En ligne</span>
-                            </div>
-                            <label class="toggle-switch">
-                                <!-- L'ID change ici pour correspondre à la logique demandée -->
-                                <input type="checkbox" id="toggle-online-status" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        
                         <div class="settings-item">
                             <div class="settings-item-label">
                                 <i class="fas fa-shield-alt"></i>
@@ -1842,6 +1849,18 @@
                             </div>
                             <label class="toggle-switch">
                                 <input type="checkbox" id="toggle-private-mode">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <!-- NOUVEAU: Toggle pour afficher le statut en ligne -->
+                        <div class="settings-item">
+                            <div class="settings-item-label">
+                                <i class="fas fa-eye"></i>
+                                <span>Afficher mon statut en ligne</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-online-status" checked>
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -2454,8 +2473,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, query, where, getDocs, orderBy, serverTimestamp, runTransaction, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        import { getDatabase, ref, onDisconnect, set, onValue, serverTimestamp as rtdbTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, query, where, getDocs, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getDatabase, ref, set, onDisconnect, onValue, off } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         // --- CONFIGURATION ---
         const firebaseConfig = {
@@ -2471,7 +2490,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        // RTDB pour la présence en temps réel
         const rtdb = getDatabase(app);
 
         // --- STATE ---
@@ -2483,7 +2501,10 @@
         let unsubscribeRecentChats = null;
         let typingTimeout = null;
         let typingInactivityTimer = null;
-        const TYPING_INACTIVITY_TIMEOUT = 3000;
+        const TYPING_INACTIVITY_TIMEOUT = 4000;
+        let unsubscribePresence = null;
+        let presenceRef = null;
+        let currentPartnerPresence = null;
         
         // MODULE 1: STATE SWIPE TO REPLY
         let currentReply = null; // Stocke { id, text, sender }
@@ -2503,141 +2524,172 @@
         const msgInput = document.getElementById('msg-input');
         const splashScreen = document.getElementById('splash-screen');
         const appContainer = document.getElementById('app-container');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const presenceStatus = document.getElementById('presence-status');
+        const lastSeenText = document.getElementById('last-seen-text');
 
-        // ============================================
-        // MODULE PRESENCE & TYPING (NOUVEAU)
-        // ============================================
+        // --- FONCTIONS DE PRÉSENCE ET TYPING ---
 
-        // 1. Fonction d'initialisation de la présence (Au chargement)
-        function setupPresence() {
-            if (!auth.currentUser) return;
+        // 1. Gestion du statut de présence
+        function setupPresenceSystem(userId) {
+            if (!userId) return;
+            
+            // Référence pour le statut en ligne dans Realtime Database
+            presenceRef = ref(rtdb, `presence/${userId}`);
+            
+            // Définir l'utilisateur comme en ligne
+            set(presenceRef, {
+                status: 'online',
+                last_online: serverTimestamp(),
+                show_online_status: localStorage.getItem('loveVibes_showOnlineStatus') !== 'false'
+            });
+            
+            // Configurer onDisconnect pour marquer comme hors ligne
+            onDisconnect(presenceRef).set({
+                status: 'offline',
+                last_online: serverTimestamp(),
+                show_online_status: localStorage.getItem('loveVibes_showOnlineStatus') !== 'false'
+            });
+            
+            // Sauvegarder les préférences de statut
+            const onlineStatusToggle = document.getElementById('toggle-online-status');
+            if (onlineStatusToggle) {
+                onlineStatusToggle.checked = localStorage.getItem('loveVibes_showOnlineStatus') !== 'false';
+                
+                onlineStatusToggle.addEventListener('change', async (e) => {
+                    const showStatus = e.target.checked;
+                    localStorage.setItem('loveVibes_showOnlineStatus', showStatus.toString());
+                    
+                    // Mettre à jour dans la base de données
+                    if (presenceRef) {
+                        await set(presenceRef, {
+                            status: 'online',
+                            last_online: serverTimestamp(),
+                            show_online_status: showStatus
+                        });
+                    }
+                    
+                    showToast(showStatus ? 'Statut en ligne activé' : 'Statut en ligne désactivé');
+                });
+            }
+        }
 
-            const userStatusRef = ref(rtdb, '/status/' + auth.currentUser.uid);
-            const userRef = ref(rtdb, '/users/' + auth.currentUser.uid);
-
-            // Mettre à jour le statut "En ligne"
-            const connectedRef = ref(rtdb, '.info/connected');
-            onValue(connectedRef, (snapshot) => {
-                if (snapshot.val() === false) {
-                    return;
-                };
-
-                onDisconnect(userStatusRef).set({
-                    status: 'offline',
-                    last_changed: rtdbTimestamp()
-                }).then(() => {
-                    set(userStatusRef, {
-                        status: 'online',
-                        last_changed: rtdbTimestamp()
-                    });
+        // 2. Écouter le statut du partenaire
+        function listenToPartnerPresence(partnerUsername) {
+            if (!partnerUsername || unsubscribePresence) {
+                unsubscribePresence?.();
+            }
+            
+            // Chercher l'ID du partenaire via son username
+            const partnerQuery = query(collection(db, "users"), where("username", "==", partnerUsername));
+            
+            getDocs(partnerQuery).then((querySnapshot) => {
+                if (querySnapshot.empty) return;
+                
+                const partnerData = querySnapshot.docs[0].data();
+                const partnerUserId = querySnapshot.docs[0].id;
+                
+                const partnerPresenceRef = ref(rtdb, `presence/${partnerUserId}`);
+                
+                unsubscribePresence = onValue(partnerPresenceRef, (snapshot) => {
+                    currentPartnerPresence = snapshot.val();
+                    updatePresenceUI(currentPartnerPresence);
                 });
             });
         }
 
-        // 2. Fonction pour écouter le statut du partenaire
-        function listenToPartnerPresence(partnerUid, partnerUsername) {
-            const partnerStatusRef = ref(rtdb, '/status/' + partnerUid);
-            const presenceContainer = document.getElementById('presence-indicator-container');
+        // 3. Mettre à jour l'UI de présence
+        function updatePresenceUI(presenceData) {
+            if (!presenceData || !presenceStatus) return;
             
-            onValue(partnerStatusRef, async (snapshot) => {
-                const statusData = snapshot.val();
-                presenceContainer.innerHTML = ''; // Reset
-
-                // Récupérer les paramètres de confidentialité du partenaire
-                const partnerDoc = await getDoc(doc(db, "users", partnerUid));
-                const partnerSettings = partnerDoc.exists() ? partnerDoc.data() : {};
-                const partnerShowOnline = partnerSettings.show_online_status !== false; // Par défaut true
-
-                // Récupérer mes paramètres (Logique Réciproque)
-                // Si je cache mon statut, je ne peux pas voir le leur
-                const myDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
-                const mySettings = myDoc.exists() ? myDoc.data() : {};
-                const myShowOnline = mySettings.show_online_status !== false;
-
-                if (!partnerShowOnline || !myShowOnline) {
-                    // Ne rien afficher
-                    return;
+            // Logique de confidentialité
+            const myShowStatus = localStorage.getItem('loveVibes_showOnlineStatus') !== 'false';
+            const partnerShowStatus = presenceData.show_online_status !== false;
+            
+            // Règle de confidentialité : si je cache mon statut ou si le partenaire cache son statut, on n'affiche rien
+            if (!myShowStatus || !partnerShowStatus) {
+                presenceStatus.innerHTML = '';
+                return;
+            }
+            
+            if (presenceData.status === 'online') {
+                presenceStatus.innerHTML = `
+                    <div class="online-dot"></div>
+                    <span>En ligne</span>
+                `;
+            } else if (presenceData.last_online) {
+                const lastOnline = new Date(presenceData.last_online);
+                const now = new Date();
+                const diffMinutes = Math.floor((now - lastOnline) / (1000 * 60));
+                
+                let timeText = '';
+                if (diffMinutes < 1) {
+                    timeText = "À l'instant";
+                } else if (diffMinutes < 60) {
+                    timeText = `En ligne il y a ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
+                } else if (diffMinutes < 1440) {
+                    const hours = Math.floor(diffMinutes / 60);
+                    timeText = `En ligne il y a ${hours} heure${hours > 1 ? 's' : ''}`;
+                } else {
+                    const days = Math.floor(diffMinutes / 1440);
+                    timeText = `En ligne il y a ${days} jour${days > 1 ? 's' : ''}`;
                 }
-
-                if (statusData && statusData.status === 'online') {
-                    presenceContainer.innerHTML = `<span class="online-indicator"></span> En ligne`;
-                } else if (statusData && statusData.last_changed) {
-                    const lastSeen = new Date(statusData.last_changed);
-                    const timeString = formatLastSeen(lastSeen);
-                    presenceContainer.innerHTML = `<span class="last-seen-text">${timeString}</span>`;
-                }
-            });
+                
+                presenceStatus.innerHTML = `<span>${timeText}</span>`;
+            } else {
+                presenceStatus.innerHTML = '<span>Hors ligne</span>';
+            }
         }
 
-        // 3. Fonction de formatage du temps
-        function formatLastSeen(date) {
-            const seconds = Math.floor((new Date() - date) / 1000);
-            if (seconds < 60) return "En ligne à l'instant";
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `En ligne il y a ${minutes} min`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `En ligne il y a ${hours}h`;
-            return `En ligne le ${date.toLocaleDateString()}`;
-        }
-
-        // 4. Gestion de la saisie (Typing)
-        function setupTypingListeners() {
-            msgInput.addEventListener('input', () => {
-                if (!currentChatId || !chatPartnerUsername) return;
-
-                // Envoyer l'état "En train d'écrire"
-                updateDoc(doc(db, "chats", currentChatId), {
+        // 4. Gestion du typing indicator
+        function setupTypingDetection() {
+            if (!msgInput || !currentChatId || !currentUserData) return;
+            
+            msgInput.addEventListener('input', async () => {
+                if (!currentChatId) return;
+                
+                // Mettre à jour le statut de saisie
+                const chatRef = doc(db, "chats", currentChatId);
+                await updateDoc(chatRef, {
                     [`typing.${currentUserData.username}`]: true
                 });
-
-                // Annuler le timer précédent
-                if (typingInactivityTimer) clearTimeout(typingInactivityTimer);
-
-                // Créer un timer pour repasser à false après 3s
-                typingInactivityTimer = setTimeout(() => {
-                    updateDoc(doc(db, "chats", currentChatId), {
+                
+                // Réinitialiser le timer d'inactivité
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(async () => {
+                    await updateDoc(chatRef, {
                         [`typing.${currentUserData.username}`]: false
                     });
-                }, TYPING_INACTIVITY_TIMEOUT);
+                }, 3000);
             });
-
-            // Repasser à false lors de l'envoi
-            document.getElementById('btn-send').addEventListener('click', () => {
-                if (currentChatId && currentUserData) {
-                    updateDoc(doc(db, "chats", currentChatId), {
-                        [`typing.${currentUserData.username}`]: false
-                    });
-                }
-            });
-        }
-
-        // 5. Écouteur de saisie du partenaire
-        function listenToPartnerTyping() {
-            if (!currentChatId) return;
             
-            const chatDocRef = doc(db, "chats", currentChatId);
-            const typingIndicator = document.getElementById('typing-indicator');
+            // Écouter le typing du partenaire
+            listenToPartnerTyping();
+        }
 
-            onSnapshot(chatDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const chatData = docSnap.data();
-                    const isPartnerTyping = chatData.typing && chatData.typing[chatPartnerUsername];
-
-                    if (isPartnerTyping) {
-                        typingIndicator.style.display = 'flex';
-                        // Scroll en bas pour voir l'indicateur
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // 5. Écouter le typing du partenaire
+        function listenToPartnerTyping() {
+            if (!currentChatId || !chatPartnerUsername) return;
+            
+            const chatRef = doc(db, "chats", currentChatId);
+            
+            unsubscribeTyping = onSnapshot(chatRef, (doc) => {
+                if (doc.exists()) {
+                    const chatData = doc.data();
+                    const isTyping = chatData.typing?.[chatPartnerUsername] || false;
+                    
+                    // Logique de confidentialité
+                    const myShowStatus = localStorage.getItem('loveVibes_showOnlineStatus') !== 'false';
+                    const partnerShowStatus = currentPartnerPresence?.show_online_status !== false;
+                    
+                    if (isTyping && myShowStatus && partnerShowStatus) {
+                        typingIndicator.classList.add('visible');
                     } else {
-                        typingIndicator.style.display = 'none';
+                        typingIndicator.classList.remove('visible');
                     }
-                } else {
-                    typingIndicator.style.display = 'none';
                 }
             });
         }
-        // ============================================
-        // FIN MODULE PRESENCE & TYPING
-        // ============================================
 
         // --- MODULE 1: LOGIQUE SWIPE & RÉPONSE ---
         
@@ -2791,15 +2843,13 @@
 
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
                 const user = cred.user;
-                // Initialisation du champ 'show_online_status' par défaut true
                 await setDoc(doc(db, "users", user.uid), { 
                     prenom: prenom, 
                     username: username, 
                     email: email,
                     createdAt: serverTimestamp(),
                     bio: "Amoureux de Wendy 🥰",
-                    messagesCount: 0,
-                    show_online_status: true // Paramètre par défaut
+                    messagesCount: 0
                 });
                 await updateProfile(user, { displayName: prenom });
                 showToast("Inscription réussie !");
@@ -2828,6 +2878,16 @@
             signOut(auth).then(() => {
                 showToast("Déconnecté avec succès");
                 switchView('auth');
+                
+                // Nettoyer les écouteurs de présence
+                if (unsubscribePresence) unsubscribePresence();
+                if (presenceRef) {
+                    set(presenceRef, {
+                        status: 'offline',
+                        last_online: serverTimestamp(),
+                        show_online_status: false
+                    });
+                }
             });
         });
 
@@ -2837,9 +2897,6 @@
                 if (docSnap.exists()) {
                     currentUserData = docSnap.data();
                     currentUserData.uid = user.uid;
-                    
-                    // Initialiser la présence dès que l'utilisateur est connecté
-                    setupPresence();
                     
                     // Mettre à jour l'interface du profil
                     document.getElementById('profile-username-edit').value = currentUserData.username;
@@ -2867,6 +2924,9 @@
                     // Initialiser la barre de progression
                     initializeProgressBar();
                     loadRecentChats();
+                    
+                    // Configurer le système de présence
+                    setupPresenceSystem(user.uid);
                 }
             } else { 
                 switchView('auth'); 
@@ -2986,13 +3046,13 @@
             document.getElementById('reply-preview-container').style.display = 'none';
             
             switchView('room');
-            
-            // --- MODULE PRESENCE & TYPING ---
-            listenToPartnerPresence(partnerData.uid, partnerData.username);
-            listenToPartnerTyping();
-            // -----------------------------------
-
             listenToMessages();
+            
+            // Configurer la détection de saisie
+            setupTypingDetection();
+            
+            // Écouter la présence du partenaire
+            listenToPartnerPresence(chatPartnerUsername);
 
             await setDoc(doc(db, "chats", currentChatId), { 
                 participants: [currentUserData.username, chatPartnerUsername],
@@ -3005,8 +3065,16 @@
 
         document.getElementById('btn-back-chat').addEventListener('click', () => {
             if(unsubscribeMessages) unsubscribeMessages();
-            // Nettoyer les écouteurs de présence/typing
-            if(typingInactivityTimer) clearTimeout(typingInactivityTimer);
+            if(unsubscribeTyping) unsubscribeTyping();
+            if(unsubscribePresence) unsubscribePresence();
+            
+            // Réinitialiser le statut de saisie
+            if (currentChatId && currentUserData) {
+                const chatRef = doc(db, "chats", currentChatId);
+                updateDoc(chatRef, {
+                    [`typing.${currentUserData.username}`]: false
+                });
+            }
             
             switchView('search');
         });
@@ -3104,6 +3172,14 @@
             
             await addDoc(collection(db, `chats/${currentChatId}/messages`), messageData);
             
+            // Réinitialiser le statut de saisie
+            if (currentChatId) {
+                const chatRef = doc(db, "chats", currentChatId);
+                await updateDoc(chatRef, {
+                    [`typing.${currentUserData.username}`]: false
+                });
+            }
+            
             // Reset Input UI
             input.value = '';
             currentReply = null;
@@ -3160,50 +3236,10 @@
             }
         });
 
-        // --- MODULE 3: CONFIDENTIALITÉ (SETTINGS) ---
-        // Gestion du switch "En ligne"
-        const toggleOnlineStatus = document.getElementById('toggle-online-status');
-        
-        // Synchroniser le switch avec la BDD au chargement
-        async function syncPrivacySettings() {
-            if (!currentUserData) return;
-            const userDoc = await getDoc(doc(db, "users", currentUserData.uid));
-            if (userDoc.exists()) {
-                const status = userDoc.data().show_online_status;
-                toggleOnlineStatus.checked = (status === false) ? false : true;
-            }
-        }
-
-        toggleOnlineStatus.addEventListener('change', async (e) => {
-            const isChecked = e.target.checked;
-            try {
-                await updateDoc(doc(db, "users", currentUserData.uid), {
-                    show_online_status: isChecked
-                });
-                showToast(isChecked ? 'Statut en ligne visible' : 'Statut masqué');
-                // Rafraîchir la vue chat si ouverte pour appliquer la logique réciproque immédiatement
-                if (currentChatId && chatPartnerUsername) {
-                     // On pourrait rafraîchir l'UI de présence ici si nécessaire
-                }
-            } catch (error) {
-                console.error('Erreur mise à jour confidentialité:', error);
-                showToast('Erreur lors de la mise à jour');
-                toggleOnlineStatus.checked = !isChecked; // Revert
-            }
-        });
-
-        // Appeler la synchro après chargement utilisateur
-        // (Intégré dans onAuthStateChanged via une logique différée ou appel direct)
-        // Pour simplifier ici, on l'ajoute à la fin du chargement initial
-        setTimeout(syncPrivacySettings, 1000);
-
         // --- NAVIGATION ---
         document.getElementById('nav-chat').addEventListener('click', () => switchView('search'));
         document.getElementById('nav-profile').addEventListener('click', () => switchView('profile'));
         document.getElementById('nav-settings').addEventListener('click', () => switchView('settings'));
-
-        // Initialisation des écouteurs de saisie au chargement
-        setupTypingListeners();
 
     </script>
 </body>
