@@ -24,7 +24,7 @@
     <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -123,7 +123,143 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* --- Écran de Chargement (Splash Screen) --- */
+        /* =========================================
+           MODULE ANIMATION SPLASH SCREEN (NOUVEAU)
+           ========================================= */
+        #splash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000; /* Au-dessus de tout */
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* Effet verre liquide subtil */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* Conteneur central pour l'animation */
+        .animation-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- FLEUR SVG --- */
+        .flower-svg {
+            width: 160px;
+            height: 160px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow: visible;
+        }
+
+        .petal {
+            transform-origin: 50% 50%;
+            opacity: 0;
+            fill: #ff9a9e;
+            animation: bloom 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        .petal:nth-child(1) { animation-delay: 0.1s; transform: rotate(0deg) scale(0); }
+        .petal:nth-child(2) { animation-delay: 0.2s; transform: rotate(72deg) scale(0); }
+        .petal:nth-child(3) { animation-delay: 0.3s; transform: rotate(144deg) scale(0); }
+        .petal:nth-child(4) { animation-delay: 0.4s; transform: rotate(216deg) scale(0); }
+        .petal:nth-child(5) { animation-delay: 0.5s; transform: rotate(288deg) scale(0); }
+
+        .flower-center {
+            fill: #ff69b4;
+            opacity: 0;
+            animation: fadeInScale 0.8s ease-out 0.8s forwards;
+        }
+
+        /* --- COEUR SVG --- */
+        .heart-svg {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            right: -20px; /* À côté de la fleur */
+            top: 10px;
+            fill: #ff69b4;
+            opacity: 0;
+            filter: drop-shadow(0 4px 6px rgba(255, 105, 180, 0.4));
+            animation: floatHeart 1.5s ease-out 0.6s forwards, pulseHeart 2s ease-in-out infinite 2s;
+            z-index: 2;
+        }
+
+        /* --- TEXTE "LOVE VIBES" --- */
+        .splash-text-container {
+            margin-top: 40px;
+            text-align: center;
+            opacity: 0;
+            animation: fadeUpText 1s ease-out 1.5s forwards;
+        }
+
+        .splash-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #fff, #ffecec);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+        }
+
+        /* --- KEYFRAMES --- */
+        @keyframes bloom {
+            0% { transform: rotate(var(--r, 0deg)) scale(0); opacity: 0; }
+            60% { transform: rotate(var(--r, 0deg)) scale(1.1); opacity: 1; }
+            100% { transform: rotate(var(--r, 0deg)) scale(1); opacity: 0.9; }
+        }
+
+        @keyframes fadeInScale {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes floatHeart {
+            0% { transform: translateY(20px) scale(0); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes pulseHeart {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        @keyframes fadeUpText {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        /* --- SORTIE (EXIT) --- */
+        #splash-overlay.splash-hidden {
+            opacity: 0;
+            transform: translateY(-20px);
+            pointer-events: none;
+            transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+        }
+
+        /* =========================================
+           FIN MODULE ANIMATION SPLASH SCREEN
+           ========================================= */
+
+        /* --- Écran de Chargement (Splash Screen Original - Masqué par l'overlay) --- */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -182,6 +318,54 @@
             border-radius: 20px;
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
             transition: all 0.3s ease;
+        }
+
+        /* MODULE 3: PREMIUM GLASS STYLE (AUTH) */
+        .premium-glass-input {
+            width: 100%;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: var(--text-color) !important;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            -webkit-appearance: none;
+            appearance: none;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .theme-light .premium-glass-input {
+            background: rgba(255, 255, 255, 0.5) !important;
+            border-color: rgba(0,0,0,0.1) !important;
+            color: #333 !important;
+        }
+
+        .premium-glass-input::placeholder {
+            color: rgba(255,255,255,0.6) !important;
+        }
+        .theme-light .premium-glass-input::placeholder {
+            color: rgba(0,0,0,0.5) !important;
+        }
+
+        .premium-glass-input:focus {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-color: var(--pink-accent) !important;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+            outline: none;
+        }
+
+        .anim-slide-up {
+            animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0; /* Start hidden */
+            transform: translateY(30px);
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* BOUTONS LIQUID GLASS */
@@ -279,8 +463,8 @@
             font-weight: 700;
         }
 
-        /* CORRECTION VISIBILITÉ DES CHAMPS DE SAISIE */
-        input, textarea {
+        /* CORRECTION VISIBILITÉ DES CHAMPS DE SAISIE (Standard inputs) */
+        input:not(.premium-glass-input), textarea:not(.premium-glass-input) {
             width: 100%;
             padding: 15px;
             margin-bottom: 15px;
@@ -555,8 +739,122 @@
             position: relative;
         }
 
-        #messages-container.with-reply-preview {
-            padding-bottom: 140px;
+        /* --- MODULE 1: REPLY PREVIEW (Liquid Glass) --- */
+        #reply-preview-container {
+            display: none; /* Hidden by default */
+            background: rgba(255, 255, 255, 0.15); /* Glass base */
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 12px 15px;
+            border-top: 1px solid var(--glass-border);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .reply-preview-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 10px;
+            border-left: 4px solid var(--pink-accent); /* Colored bar */
+            gap: 12px;
+        }
+
+        .reply-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .reply-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--pink-accent);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .reply-text {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .reply-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.6;
+            padding: 5px;
+            transition: 0.2s;
+        }
+
+        .reply-close-btn:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+
+        /* --- MODULE 2: REFONTE BARRE DE SAISIE (Flexbox) --- */
+        #chat-input-container {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--glass-border);
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .chat-input-wrapper {
+            padding: 12px 20px;
+            width: 100%;
+            display: flex; /* Module 2: Flexbox Activé */
+            align-items: center; /* Module 2: Alignement vertical */
+            gap: 10px; /* Espace entre input et bouton */
+        }
+
+        .chat-input-wrapper input {
+            flex: 1; /* Module 2: L'input prend tout l'espace restant */
+            padding: 14px 20px;
+            margin: 0;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #000000 !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            min-height: 50px; /* Hauteur cohérente */
+        }
+
+        .send-btn {
+            background: var(--pink-accent);
+            border: none;
+            color: white;
+            width: 50px; /* Taille fixe */
+            height: 50px; /* Taille fixe */
+            border-radius: 50%; /* Bouton circulaire */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0; /* Empêche le rétrécissement */
+            box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
+            transition: transform 0.2s;
+            margin-left: 0; /* Reset */
+        }
+
+        .send-btn:active {
+            transform: scale(0.9);
         }
 
         /* --- BULLES DE MESSAGES AVEC COULEURS PERSONNALISÉES --- */
@@ -571,9 +869,14 @@
             word-wrap: break-word;
             cursor: pointer;
             transition: transform 0.3s ease, background 0.3s;
-            touch-action: pan-y;
+            touch-action: pan-y; /* Autorise le scroll vertical */
             will-change: transform;
             backdrop-filter: blur(5px);
+        }
+
+        /* Animation pour swipe */
+        .msg-bubble.swiping {
+            transition: transform 0.1s linear;
         }
 
         @keyframes popIn {
@@ -603,6 +906,10 @@
             right: 8px;
             pointer-events: none;
         }
+        
+        .theme-light .msg-bubble.mine .msg-time {
+            color: rgba(255,255,255,0.8);
+        }
 
         .msg-sender { 
             font-size: 0.7rem; 
@@ -613,36 +920,20 @@
             pointer-events: none;
         }
 
-        /* --- BARRE DE SAISIE FIXE --- */
-        #chat-input-container {
-            position: sticky;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid var(--glass-border);
-            max-width: 600px;
-            margin: 0 auto;
-            width: 100%;
-            flex-shrink: 0;
+        /* Indicateur de réponse dans la bulle */
+        .msg-reply-context {
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.8rem;
+            opacity: 0.9;
         }
-
-        .chat-input-wrapper {
-            padding: 15px 20px;
-            width: 100%;
+        .msg-bubble.theirs .msg-reply-context {
+            border-bottom: 1px solid rgba(0,0,0,0.1);
         }
-
-        .chat-input-wrapper input {
-            width: 100%;
-            padding: 12px 50px 12px 15px;
-            margin: 0;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.9) !important;
-            color: #000000 !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        .reply-context-text {
+            font-style: italic;
+            opacity: 0.8;
         }
 
         /* --- MODULE 3: REFONTE UX/UI PROFESSIONNELLE --- */
@@ -1046,7 +1337,35 @@
 </head>
 <body>
 
-    <!-- Écran de Chargement -->
+    <!-- NOUVEAU : SPLASH OVERLAY ANIMATION -->
+    <div id="splash-overlay">
+        <div class="animation-container">
+            <!-- SVG FLEUR -->
+            <svg class="flower-svg" viewBox="0 0 100 100">
+                <!-- Pétales créés avec des paths -->
+                <path class="petal" style="--r:0deg" d="M50,50 Q65,20 50,5 Q35,20 50,50" fill="#ffc3a0" opacity="0.9"/>
+                <path class="petal" style="--r:72deg" d="M50,50 Q65,20 50,5 Q35,20 50,50" fill="#ffafbd" opacity="0.9"/>
+                <path class="petal" style="--r:144deg" d="M50,50 Q65,20 50,5 Q35,20 50,50" fill="#ffc3a0" opacity="0.9"/>
+                <path class="petal" style="--r:216deg" d="M50,50 Q65,20 50,5 Q35,20 50,50" fill="#ffafbd" opacity="0.9"/>
+                <path class="petal" style="--r:288deg" d="M50,50 Q65,20 50,5 Q35,20 50,50" fill="#ffc3a0" opacity="0.9"/>
+                
+                <!-- Centre de la fleur -->
+                <circle class="flower-center" cx="50" cy="50" r="6" fill="#ff69b4" />
+            </svg>
+
+            <!-- SVG COEUR -->
+            <svg class="heart-svg" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+        </div>
+        
+        <div class="splash-text-container">
+            <h1 class="splash-title">Love Vibes</h1>
+        </div>
+    </div>
+    <!-- FIN SPLASH OVERLAY -->
+
+    <!-- Écran de Chargement (Ancien - gardé pour compatibilité mais masqué par l'overlay) -->
     <div id="splash-screen">
         <div class="splash-logo">💖 Love Vibes</div>
         <div class="splash-spinner"></div>
@@ -1118,13 +1437,15 @@
         <div id="toast"></div>
 
         <!-- VIEW: AUTH -->
+        <!-- MODULE 3: Ajout de la classe anim-slide-up -->
         <section id="view-auth" class="view active">
             <div class="glass-panel auth-container anim-slide-up">
                 <h1 class="title">Love Vibes</h1>
                 
+                <!-- MODULE 3: Classes premium-glass-input ajoutées aux inputs -->
                 <div id="login-form">
-                    <input type="email" id="login-email" placeholder="Email">
-                    <input type="password" id="login-pass" placeholder="Mot de passe">
+                    <input type="email" id="login-email" placeholder="Email" class="premium-glass-input">
+                    <input type="password" id="login-pass" placeholder="Mot de passe" class="premium-glass-input">
                     <button class="btn-primary btn-liquid-glass primary" id="btn-login">
                         <div class="btn-loader"></div> <span>Connexion</span>
                     </button>
@@ -1132,11 +1453,11 @@
                 </div>
 
                 <div id="register-form" style="display: none;">
-                    <input type="text" id="reg-prenom" placeholder="Prénom">
-                    <input type="text" id="reg-username" placeholder="Nom d'utilisateur (Unique)">
-                    <input type="email" id="reg-email" placeholder="Email">
-                    <input type="password" id="reg-pass" placeholder="Mot de passe">
-                    <input type="password" id="reg-pass-conf" placeholder="Confirmer mot de passe">
+                    <input type="text" id="reg-prenom" placeholder="Prénom" class="premium-glass-input">
+                    <input type="text" id="reg-username" placeholder="Nom d'utilisateur (Unique)" class="premium-glass-input">
+                    <input type="email" id="reg-email" placeholder="Email" class="premium-glass-input">
+                    <input type="password" id="reg-pass" placeholder="Mot de passe" class="premium-glass-input">
+                    <input type="password" id="reg-pass-conf" placeholder="Confirmer mot de passe" class="premium-glass-input">
                     <button class="btn-primary btn-liquid-glass primary" id="btn-register">
                         <div class="btn-loader"></div> <span>S'inscrire</span>
                     </button>
@@ -1197,10 +1518,25 @@
                     </div>
                 </div>
 
-                <!-- Barre de saisie fixe en bas -->
+                <!-- MODULE 1: PREVIEW ZONE RÉPONSE -->
+                <div id="reply-preview-container">
+                    <div class="reply-preview-box">
+                        <div class="reply-content">
+                            <div class="reply-title">Réponse à</div>
+                            <div class="reply-text" id="reply-text-preview">Message sélectionné...</div>
+                        </div>
+                        <button class="reply-close-btn" id="close-reply-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- MODULE 2: BARRE DE SAISIE FIXE (Flexbox Layout) -->
                 <div id="chat-input-container">
                     <div class="chat-input-wrapper">
+                        <!-- Flex: Input -->
                         <input type="text" id="msg-input" placeholder="Votre message...">
+                        <!-- Flex: Button -->
                         <button class="send-btn" id="btn-send"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
@@ -1476,6 +1812,23 @@
 
     <!-- JavaScript Principal -->
     <script>
+        // ============================================
+        // MODULE ANIMATION SPLASH OVERLAY (NOUVEAU)
+        // ============================================
+        window.addEventListener('load', () => {
+            // Attendre la fin de l'animation (3.5s)
+            setTimeout(() => {
+                const overlay = document.getElementById('splash-overlay');
+                if(overlay) {
+                    overlay.classList.add('splash-hidden');
+                    // Nettoyage DOM après la transition pour libérer de la mémoire
+                    setTimeout(() => {
+                        overlay.remove();
+                    }, 800); // Correspond à la durée de la transition CSS
+                }
+            }, 3500); 
+        });
+
         // ============================================
         // PWA INSTALLATION LOGIC
         // ============================================
@@ -2050,6 +2403,9 @@
         let typingTimeout = null;
         let typingInactivityTimer = null;
         const TYPING_INACTIVITY_TIMEOUT = 4000;
+        
+        // MODULE 1: STATE SWIPE TO REPLY
+        let currentReply = null; // Stocke { id, text, sender }
 
         // --- DOM ---
         const views = {
@@ -2066,6 +2422,74 @@
         const msgInput = document.getElementById('msg-input');
         const splashScreen = document.getElementById('splash-screen');
         const appContainer = document.getElementById('app-container');
+
+        // --- MODULE 1: LOGIQUE SWIPE & RÉPONSE ---
+        
+        // Fonction pour détecter le geste sur une bulle de message
+        function attachSwipeReplyListeners(element, messageData) {
+            let startX = 0;
+            let currentX = 0;
+            let isSwipping = false;
+
+            element.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                isSwipping = true;
+                element.classList.add('swiping');
+            }, { passive: true });
+
+            element.addEventListener('touchmove', (e) => {
+                if (!isSwipping) return;
+                currentX = e.touches[0].clientX;
+                const diffX = currentX - startX;
+                
+                // Feedback visuel léger (limite à 80px pour ne pas casser l'écran)
+                if (diffX > 0 && diffX < 80) {
+                    element.style.transform = `translateX(${diffX}px)`;
+                }
+            }, { passive: true });
+
+            element.addEventListener('touchend', (e) => {
+                if (!isSwipping) return;
+                isSwipping = false;
+                element.classList.remove('swiping');
+                element.style.transform = ''; // Reset transformation
+                
+                const diffX = currentX - startX;
+                
+                // Si le swipe vers la droite est supérieur à 50px
+                if (diffX > 50) {
+                    activateReplyMode(messageData);
+                }
+            });
+        }
+
+        // Activer le mode réponse
+        function activateReplyMode(messageData) {
+            currentReply = {
+                id: messageData.id, // Note: onSnapshot doesn't always give ID easily without checking metadata, using text fallback if needed
+                text: messageData.text,
+                sender: messageData.sender,
+                senderName: messageData.senderName
+            };
+            
+            const previewContainer = document.getElementById('reply-preview-container');
+            const previewText = document.getElementById('reply-text-preview');
+            
+            previewText.textContent = currentReply.text;
+            previewContainer.style.display = 'block';
+            
+            // Scroll en bas
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Focus sur l'input
+            msgInput.focus();
+        }
+
+        // Annuler la réponse
+        document.getElementById('close-reply-btn').addEventListener('click', () => {
+            currentReply = null;
+            document.getElementById('reply-preview-container').style.display = 'none';
+        });
 
         // --- UTILS ---
         function showToast(msg) {
@@ -2336,6 +2760,10 @@
             
             messagesContainer.innerHTML = '';
             
+            // Reset reply state
+            currentReply = null;
+            document.getElementById('reply-preview-container').style.display = 'none';
+            
             switchView('room');
             listenToMessages();
 
@@ -2362,7 +2790,9 @@
                 messagesContainer.innerHTML = '';
 
                 snapshot.forEach(doc => {
-                    appendMessageToDOM(doc.data());
+                    const msgData = doc.data();
+                    msgData.id = doc.id; // Ajout de l'ID pour la logique de reply
+                    appendMessageToDOM(msgData);
                 });
 
                 scrollToBottom();
@@ -2375,6 +2805,20 @@
             const div = document.createElement('div');
             div.className = `msg-bubble ${isMe ? 'mine' : 'theirs'}`;
             
+            // MODULE 1: Attacher les écouteurs de Swipe ici
+            attachSwipeReplyListeners(div, msg);
+
+            // MODULE 1: Affichage du contexte de réponse
+            let replyContextHTML = '';
+            if (msg.replyTo) {
+                replyContextHTML = `
+                    <div class="msg-reply-context">
+                        <div style="font-size:0.65rem; font-weight:bold; opacity:0.7;">En réponse à ${msg.replyTo.senderName}</div>
+                        <div class="reply-context-text">"${msg.replyTo.text}"</div>
+                    </div>
+                `;
+            }
+
             let displayTime = "";
             if (msg.timestamp) {
                 const date = msg.timestamp.toDate();
@@ -2385,6 +2829,7 @@
 
             div.innerHTML = `
                 <span class="msg-sender">${isMe ? 'Moi' : msg.senderName}</span>
+                ${replyContextHTML}
                 ${msg.text}
                 <span class="msg-time">${displayTime}</span>
             `;
@@ -2419,9 +2864,22 @@
                 timestamp: serverTimestamp()
             };
             
+            // MODULE 1: Ajouter les données de réponse si actif
+            if (currentReply) {
+                messageData.replyTo = {
+                    text: currentReply.text,
+                    sender: currentReply.sender,
+                    senderName: currentReply.senderName
+                };
+            }
+            
             await addDoc(collection(db, `chats/${currentChatId}/messages`), messageData);
             
+            // Reset Input UI
             input.value = '';
+            currentReply = null;
+            document.getElementById('reply-preview-container').style.display = 'none';
+            
             scrollToBottom(); 
         }
 
