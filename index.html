@@ -1291,7 +1291,7 @@
         }
 
         /* =========================================
-           AJOUTS POUR LE SYSTÈME DE PRÉSENCE
+           AJOUTS EXPERT : SYSTÈME DE STATUT EN LIGNE
            ========================================= */
         
         /* Indicateur de statut dans le header */
@@ -1301,31 +1301,40 @@
             font-size: 0.8rem;
             margin-top: 4px;
             height: 16px; /* Fix height to prevent jump */
-            transition: opacity 0.3s ease;
+            transition: all 0.3s ease;
         }
 
+        /* Point vert avec animation de pulsation */
         .online-status-dot {
-            width: 10px;
-            height: 10px;
-            background-color: #2ecc71; /* Vert vif */
+            width: 8px;
+            height: 8px;
+            background-color: #2ecc71; /* Vert */
             border-radius: 50%;
             display: inline-block;
             margin-right: 6px;
             box-shadow: 0 0 8px #2ecc71;
-            animation: pulseStatus 2s infinite ease-in-out;
+            animation: pulseGlow 2s infinite;
         }
 
-        @keyframes pulseStatus {
-            0%, 100% { box-shadow: 0 0 8px #2ecc71; }
-            50% { box-shadow: 0 0 15px #2ecc71; }
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px #2ecc71; 
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 12px #2ecc71, 0 0 20px rgba(46, 204, 113, 0.4);
+                transform: scale(1.1);
+            }
         }
 
+        /* Texte de statut */
         .status-text {
             color: rgba(255, 255, 255, 0.7);
             font-size: 0.75rem;
             font-weight: 400;
+            transition: opacity 0.3s ease;
         }
-        
+
         .theme-light .status-text {
             color: rgba(0, 0, 0, 0.6);
         }
@@ -1369,58 +1378,6 @@
             0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
             40% { transform: scale(1); opacity: 1; }
         }
-        
-        /* Style Liquid Glass pour le switch de confidentialité */
-        .liquid-glass-switch {
-            position: relative;
-            width: 60px;
-            height: 30px;
-        }
-        
-        .liquid-glass-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .liquid-glass-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 34px;
-            transition: .4s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .liquid-glass-slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 3px;
-            background: linear-gradient(135deg, #ffffff, #f0f0f0);
-            border-radius: 50%;
-            transition: .4s;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-        
-        input:checked + .liquid-glass-slider {
-            background: linear-gradient(135deg, #4cd964, #2ecc71);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-        
-        input:checked + .liquid-glass-slider:before {
-            transform: translateX(30px);
-            background: linear-gradient(135deg, #ffffff, #f8f8f8);
-        }
 
         /* Ajustements responsifs */
         @media (max-width: 768px) {
@@ -1436,11 +1393,6 @@
             .profile-stats-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .online-status-dot {
-                width: 8px;
-                height: 8px;
-            }
         }
 
         @media (max-width: 480px) {
@@ -1451,10 +1403,6 @@
             .theme-btn {
                 padding: 15px 8px;
                 font-size: 0.8rem;
-            }
-            
-            .partner-status-container {
-                font-size: 0.7rem;
             }
         }
 
@@ -1914,18 +1862,15 @@
                             </label>
                         </div>
                         
-                        <!-- AJOUT EXPERT : Switch Confidentialité Statut (Style Liquid Glass) -->
+                        <!-- AJOUT EXPERT : Switch Confidentialité Statut -->
                         <div class="settings-item">
                             <div class="settings-item-label">
                                 <i class="fas fa-eye-slash"></i>
-                                <span>Statut en ligne</span>
-                                <div style="font-size: 0.75rem; opacity: 0.7; margin-left: 10px;">
-                                    (visible pour les autres)
-                                </div>
+                                <span>Masquer mon statut</span>
                             </div>
-                            <label class="liquid-glass-switch">
-                                <input type="checkbox" id="toggle-online-status" checked>
-                                <span class="liquid-glass-slider"></span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-online-status">
+                                <span class="slider"></span>
                             </label>
                         </div>
                     </div>
@@ -2450,7 +2395,7 @@
             // Charger préférence confidentialité (Nouveau)
             const hideStatus = localStorage.getItem('loveVibes_hideStatus') === 'true';
             const toggleStatus = document.getElementById('toggle-online-status');
-            if (toggleStatus) toggleStatus.checked = !hideStatus; // Inversé: checked = visible, unchecked = masqué
+            if (toggleStatus) toggleStatus.checked = hideStatus;
         }
 
         // Sauvegarder les couleurs
@@ -2542,8 +2487,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, query, where, getDocs, orderBy, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        import { getDatabase, onDisconnect, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, query, where, getDocs, orderBy, serverTimestamp, runTransaction, setLogLevel } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getDatabase, onDisconnect, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         // --- CONFIGURATION ---
         const firebaseConfig = {
@@ -2566,7 +2511,6 @@
         let currentChatId = null;
         let chatPartnerUsername = null;
         let chatPartnerUid = null; // Nécessaire pour la présence
-        let chatPartnerData = null; // Stocke les données du partenaire
         let unsubscribeMessages = null;
         let unsubscribePartnerTyping = null;
         let unsubscribePartnerStatus = null;
@@ -2596,7 +2540,210 @@
         const typingIndicatorEl = document.getElementById('typing-indicator-container');
         const partnerStatusEl = document.getElementById('partner-status');
 
-        // --- MODULE 1: LOGIQUE SWIPE & RÉPONSE ---
+        // ============================================
+        // SYSTÈME DE PRÉSENCE (EN LIGNE/DERNIÈRE CONNEXION)
+        // ============================================
+
+        // Fonction pour se mettre en ligne dans Realtime Database
+        function goOnlineRTDB() {
+            // Vérifier si l'utilisateur veut masquer son statut
+            const hideStatus = localStorage.getItem('loveVibes_hideStatus') === 'true';
+            if (hideStatus || !currentUserData) {
+                console.log("Statut masqué ou utilisateur non connecté - pas de mise en ligne");
+                return;
+            }
+
+            const uid = currentUserData.uid;
+            userStatusDatabaseRef = ref(rtdb, '/users/' + uid);
+            
+            const status = {
+                state: 'online',
+                last_changed: new Date().toISOString(),
+                userId: uid,
+                username: currentUserData.username
+            };
+
+            // Utiliser onDisconnect pour gérer la déconnexion
+            const presenceRef = ref(rtdb, '.info/connected');
+            onValue(presenceRef, (snapshot) => {
+                if (snapshot.val() === false) {
+                    return;
+                };
+                
+                // Configurer ce qui se passe lors de la déconnexion
+                onDisconnect(userStatusDatabaseRef).set({
+                    state: 'offline',
+                    last_changed: new Date().toISOString(),
+                    userId: uid,
+                    username: currentUserData.username
+                }).then(() => {
+                    // Mettre en ligne maintenant
+                    set(userStatusDatabaseRef, status);
+                    console.log("Utilisateur mis en ligne:", uid);
+                }).catch((error) => {
+                    console.error("Erreur lors de la configuration onDisconnect:", error);
+                });
+            });
+        }
+
+        // Fonction pour se mettre hors ligne
+        function goOfflineRTDB() {
+            if (currentUserData) {
+                const uid = currentUserData.uid;
+                const offlineRef = ref(rtdb, '/users/' + uid);
+                
+                set(offlineRef, {
+                    state: 'offline',
+                    last_changed: new Date().toISOString(),
+                    userId: uid,
+                    username: currentUserData.username
+                }).then(() => {
+                    console.log("Utilisateur mis hors ligne:", uid);
+                }).catch((error) => {
+                    console.error("Erreur lors de la mise hors ligne:", error);
+                });
+            }
+        }
+
+        // Écouter le statut du partenaire
+        function listenToPartnerPresenceRTDB(partnerUid) {
+            if (!partnerUid) return;
+            
+            // Nettoyage écouteur précédent
+            if (unsubscribePartnerStatus) unsubscribePartnerStatus();
+
+            const partnerStatusRef = ref(rtdb, '/users/' + partnerUid);
+            
+            unsubscribePartnerStatus = onValue(partnerStatusRef, (snapshot) => {
+                const data = snapshot.val();
+                updatePartnerStatusUI(data);
+            }, (error) => {
+                console.error("Erreur d'écoute du statut du partenaire:", error);
+                partnerStatusEl.innerHTML = '';
+            });
+        }
+
+        // Mettre à jour l'interface du statut du partenaire
+        function updatePartnerStatusUI(statusData = null) {
+            // LOGIQUE DE CONFIDENTIALITÉ :
+            // Si MOI j'ai masqué mon statut, je ne dois RIEN voir du partenaire.
+            const myPrivacySetting = localStorage.getItem('loveVibes_hideStatus') === 'true';
+            
+            if (myPrivacySetting) {
+                partnerStatusEl.innerHTML = ''; // Rien
+                return;
+            }
+
+            // Si pas de données ou partenaire masqué son statut
+            if (!statusData) {
+                partnerStatusEl.innerHTML = '';
+                return;
+            }
+
+            // Vérifier si le partenaire est en ligne
+            if (statusData.state === 'online') {
+                partnerStatusEl.innerHTML = `
+                    <div class="online-status-dot"></div>
+                    <span class="status-text">En ligne</span>
+                `;
+            } else {
+                // Calculer le temps écoulé depuis la dernière connexion
+                if (statusData.last_changed) {
+                    const lastSeen = new Date(statusData.last_changed);
+                    const now = new Date();
+                    const diffMs = now - lastSeen;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    
+                    let timeStr = "";
+                    if (diffMins < 1) {
+                        timeStr = "À l'instant";
+                    } else if (diffMins < 60) {
+                        timeStr = `En ligne il y a ${diffMins} min`;
+                    } else {
+                        const diffHours = Math.floor(diffMins / 60);
+                        if (diffHours < 24) {
+                            timeStr = `En ligne il y a ${diffHours} h`;
+                        } else {
+                            const diffDays = Math.floor(diffHours / 24);
+                            timeStr = `En ligne il y a ${diffDays} j`;
+                        }
+                    }
+                    
+                    partnerStatusEl.innerHTML = `
+                        <span class="status-text">${timeStr}</span>
+                    `;
+                } else {
+                    partnerStatusEl.innerHTML = '';
+                }
+            }
+        }
+
+        // Gérer les événements de visibilité de la page
+        function setupVisibilityHandlers() {
+            // Quand la page devient visible
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && currentUserData) {
+                    // Page visible = se remettre en ligne
+                    goOnlineRTDB();
+                } else if (currentUserData) {
+                    // Page cachée = se mettre hors ligne
+                    goOfflineRTDB();
+                }
+            });
+
+            // Gérer l'événement beforeunload (fermeture de l'onglet)
+            window.addEventListener('beforeunload', () => {
+                if (currentUserData) {
+                    goOfflineRTDB();
+                }
+            });
+        }
+
+        // Gestion du switch de confidentialité
+        function setupPrivacyToggle() {
+            const toggleStatus = document.getElementById('toggle-online-status');
+            if (!toggleStatus) return;
+
+            // Charger l'état actuel
+            const hideStatus = localStorage.getItem('loveVibes_hideStatus') === 'true';
+            toggleStatus.checked = hideStatus;
+
+            // Gérer les changements
+            toggleStatus.addEventListener('change', async (e) => {
+                const hideStatus = e.target.checked;
+                localStorage.setItem('loveVibes_hideStatus', hideStatus ? 'true' : 'false');
+                
+                if (currentUserData && currentUserData.uid) {
+                    try {
+                        // Mise à jour Firestore
+                        await updateDoc(doc(db, "users", currentUserData.uid), {
+                            show_online_status: !hideStatus
+                        });
+                        
+                        // Mise à jour immédiate de la présence
+                        if (!hideStatus) {
+                            goOnlineRTDB();
+                        } else {
+                            goOfflineRTDB();
+                        }
+                        
+                        // Rafraîchir l'affichage du partenaire actuel si on est dans un chat
+                        if(chatPartnerUid) {
+                            updatePartnerStatusUI(); 
+                        }
+                        
+                        showToast(hideStatus ? "Statut masqué pour tous" : "Statut visible à nouveau");
+                    } catch(err) {
+                        console.error("Erreur mise à jour confidentialité:", err);
+                        showToast("Erreur lors de la mise à jour du statut");
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // MODULE 1: LOGIQUE SWIPE & RÉPONSE
+        // ============================================
         
         // Fonction pour détecter le geste sur une bulle de message
         function attachSwipeReplyListeners(element, messageData) {
@@ -2639,7 +2786,7 @@
         // Activer le mode réponse
         function activateReplyMode(messageData) {
             currentReply = {
-                id: messageData.id,
+                id: messageData.id, // Note: onSnapshot doesn't always give ID easily without checking metadata, using text fallback if needed
                 text: messageData.text,
                 sender: messageData.sender,
                 senderName: messageData.senderName
@@ -2656,15 +2803,12 @@
             
             // Focus sur l'input
             msgInput.focus();
-            
-            showToast('Mode réponse activé');
         }
 
         // Annuler la réponse
         document.getElementById('close-reply-btn').addEventListener('click', () => {
             currentReply = null;
             document.getElementById('reply-preview-container').style.display = 'none';
-            showToast('Réponse annulée');
         });
 
         // --- UTILS ---
@@ -2715,290 +2859,6 @@
             }, 50);
         }
 
-        // ============================================
-        // MODULE EXPERT : SYSTÈME DE PRÉSENCE COMPLET
-        // ============================================
-        
-        // 1. GESTION DE LA PRÉSENCE DE L'UTILISATEUR COURANT
-        
-        // Mettre à jour le statut Firestore
-        async function updateUserStatus(isOnline) {
-            if (!currentUserData || !currentUserData.uid) return;
-            
-            try {
-                const userRef = doc(db, "users", currentUserData.uid);
-                const statusUpdate = {
-                    isOnline: isOnline,
-                    lastSeen: serverTimestamp()
-                };
-                
-                // Mettre à jour Firestore
-                await updateDoc(userRef, statusUpdate);
-                console.log(`Statut Firestore mis à jour: ${isOnline ? 'En ligne' : 'Hors ligne'}`);
-            } catch (error) {
-                console.error("Erreur mise à jour statut Firestore:", error);
-            }
-        }
-        
-        // Mettre à jour la confidentialité
-        async function updatePrivacySetting(isPrivate) {
-            if (!currentUserData || !currentUserData.uid) return;
-            
-            try {
-                const userRef = doc(db, "users", currentUserData.uid);
-                await updateDoc(userRef, {
-                    presencePrivacy: !isPrivate // Inversé: true = visible, false = caché
-                });
-                console.log(`Confidentialité mise à jour: ${isPrivate ? 'Privé' : 'Public'}`);
-            } catch (error) {
-                console.error("Erreur mise à jour confidentialité:", error);
-            }
-        }
-        
-        // Initialiser la présence Realtime Database
-        function setupRealtimePresence() {
-            if (!currentUserData || !currentUserData.uid) return;
-            
-            const uid = currentUserData.uid;
-            const userStatusDatabaseRef = ref(rtdb, 'status/' + uid);
-            
-            // Référence pour savoir si l'utilisateur est connecté
-            const connectedRef = ref(rtdb, '.info/connected');
-            
-            onValue(connectedRef, async (snapshot) => {
-                if (snapshot.val() === false) {
-                    // Non connecté à RTDB
-                    return;
-                }
-                
-                // Vérifier si l'utilisateur veut cacher son statut
-                const hideStatus = localStorage.getItem('loveVibes_hideStatus') === 'true';
-                
-                if (hideStatus) {
-                    // Statut caché: on se met hors ligne pour tout le monde
-                    await updateUserStatus(false);
-                    set(userStatusDatabaseRef, {
-                        state: 'offline',
-                        lastSeen: serverTimestamp()
-                    });
-                    return;
-                }
-                
-                // OnDisconnect - IMPORTANT: se déclenche quand la connexion est perdue
-                onDisconnect(userStatusDatabaseRef).set({
-                    state: 'offline',
-                    lastSeen: serverTimestamp()
-                }).then(() => {
-                    // L'utilisateur est connecté, mettre en ligne
-                    set(userStatusDatabaseRef, {
-                        state: 'online',
-                        lastChanged: serverTimestamp()
-                    });
-                    
-                    // Mettre à jour Firestore
-                    updateUserStatus(true);
-                });
-            });
-        }
-        
-        // Écouter les changements de page (visibility change)
-        function setupVisibilityHandlers() {
-            document.addEventListener('visibilitychange', async () => {
-                if (document.hidden) {
-                    // Page cachée (onglet changé, app minimisée)
-                    const hideStatus = localStorage.getItem('loveVibes_hideStatus') === 'true';
-                    if (!hideStatus) {
-                        // On met à jour RTDB pour indiquer qu'on est parti
-                        if (currentUserData && currentUserData.uid) {
-                            const userStatusDatabaseRef = ref(rtdb, 'status/' + currentUserData.uid);
-                            set(userStatusDatabaseRef, {
-                                state: 'away',
-                                lastSeen: serverTimestamp()
-                            });
-                            await updateUserStatus(false);
-                        }
-                    }
-                } else {
-                    // Page visible à nouveau
-                    const hideStatus = localStorage.getItem('loveVibes_hideStatus') === 'true';
-                    if (!hideStatus && currentUserData && currentUserData.uid) {
-                        const userStatusDatabaseRef = ref(rtdb, 'status/' + currentUserData.uid);
-                        set(userStatusDatabaseRef, {
-                            state: 'online',
-                            lastChanged: serverTimestamp()
-                        });
-                        await updateUserStatus(true);
-                    }
-                }
-            });
-            
-            // Gérer la fermeture de la page/navigation
-            window.addEventListener('beforeunload', async () => {
-                const hideStatus = localStorage.getItem('loveVibes_hideStatus') === 'true';
-                if (!hideStatus && currentUserData && currentUserData.uid) {
-                    // Mise à jour finale avant de quitter
-                    await updateUserStatus(false);
-                }
-            });
-        }
-        
-        // 2. ÉCOUTER LE STATUT DU PARTENAIRE
-        
-        function listenToPartnerStatus(partnerUid) {
-            if (!partnerUid) return;
-            
-            // Nettoyer l'écouteur précédent
-            if (unsubscribePartnerStatus) unsubscribePartnerStatus();
-            
-            // Écoute RTDB pour une réactivité maximale
-            const partnerStatusRef = ref(rtdb, 'status/' + partnerUid);
-            
-            unsubscribePartnerStatus = onValue(partnerStatusRef, (snapshot) => {
-                const statusData = snapshot.val();
-                updatePartnerStatusUI(statusData);
-            });
-        }
-        
-        // 3. MISE À JOUR DE L'UI DU STATUT
-        
-        function updatePartnerStatusUI(statusData = null) {
-            // Vider l'affichage actuel
-            partnerStatusEl.innerHTML = '';
-            
-            if (!chatPartnerData) return;
-            
-            // Étape 1: Vérifier la confidentialité du PARTENAIRE
-            // (Dans un système complet, on vérifierait presencePrivacy du partenaire)
-            // Ici, on simplifie: on vérifie si le partenaire a un UID et si on a son statut
-            
-            if (!statusData) {
-                // Pas de données de statut disponibles
-                partnerStatusEl.style.opacity = '0.5';
-                return;
-            }
-            
-            // LOGIQUE PRINCIPALE:
-            // 1. Si statusData.state === 'online' → Afficher point vert
-            // 2. Si statusData.state === 'offline' ou 'away' → Afficher "En ligne il y a..."
-            // 3. Si aucune donnée → Ne rien afficher
-            
-            if (statusData.state === 'online') {
-                // PARTENAIRE EN LIGNE - Afficher point vert avec animation
-                partnerStatusEl.innerHTML = `
-                    <div class="online-status-dot"></div>
-                    <span class="status-text">En ligne</span>
-                `;
-                partnerStatusEl.style.opacity = '1';
-            } else if (statusData.state === 'offline' || statusData.state === 'away') {
-                // PARTENAIRE HORS LIGNE - Calculer le temps écoulé
-                const lastSeen = statusData.lastSeen ? new Date(statusData.lastSeen) : new Date();
-                const now = new Date();
-                const diffMs = now - lastSeen;
-                const diffMins = Math.floor(diffMs / 60000);
-                
-                let timeStr = "";
-                if (diffMins < 1) {
-                    timeStr = "À l'instant";
-                } else if (diffMins < 60) {
-                    timeStr = `En ligne il y a ${diffMins} min`;
-                } else if (diffMins < 1440) {
-                    const diffHours = Math.floor(diffMins / 60);
-                    timeStr = `En ligne il y a ${diffHours} h`;
-                } else {
-                    const diffDays = Math.floor(diffMins / 1440);
-                    timeStr = `En ligne il y a ${diffDays} j`;
-                }
-                
-                partnerStatusEl.innerHTML = `
-                    <span class="status-text">${timeStr}</span>
-                `;
-                partnerStatusEl.style.opacity = '0.8';
-            }
-        }
-        
-        // 4. GESTION DU SWITCH DE CONFIDENTIALITÉ
-        
-        document.getElementById('toggle-online-status').addEventListener('change', async (e) => {
-            const isVisible = e.target.checked; // true = visible, false = masqué
-            const hideStatus = !isVisible; // Inverser pour le stockage
-            
-            // Sauvegarder dans localStorage
-            localStorage.setItem('loveVibes_hideStatus', hideStatus ? 'true' : 'false');
-            
-            // Mettre à jour Firestore
-            await updatePrivacySetting(hideStatus);
-            
-            if (hideStatus) {
-                // Mode privé activé: on se met hors ligne
-                if (currentUserData && currentUserData.uid) {
-                    const userStatusDatabaseRef = ref(rtdb, 'status/' + currentUserData.uid);
-                    set(userStatusDatabaseRef, {
-                        state: 'offline',
-                        lastSeen: serverTimestamp()
-                    });
-                    await updateUserStatus(false);
-                }
-                showToast("Statut masqué pour les autres utilisateurs");
-            } else {
-                // Mode public activé: on se met en ligne
-                if (currentUserData && currentUserData.uid) {
-                    const userStatusDatabaseRef = ref(rtdb, 'status/' + currentUserData.uid);
-                    set(userStatusDatabaseRef, {
-                        state: 'online',
-                        lastChanged: serverTimestamp()
-                    });
-                    await updateUserStatus(true);
-                }
-                showToast("Statut visible pour les autres utilisateurs");
-            }
-            
-            // Mettre à jour l'affichage du statut du partenaire
-            if (chatPartnerUid) {
-                // Recharger le statut du partenaire
-                const partnerStatusRef = ref(rtdb, 'status/' + chatPartnerUid);
-                get(partnerStatusRef).then((snapshot) => {
-                    updatePartnerStatusUI(snapshot.val());
-                });
-            }
-        });
-
-        // ============================================
-        // MODULE EXPERT : SYSTÈME DE SAISIE (FIRESTORE)
-        // ============================================
-
-        function setMyTypingStatus(isTyping) {
-            if (!currentChatId) return;
-            const typingRef = doc(db, "chats", currentChatId);
-            
-            // On utilise une Map pour stocker qui tape : { username: true/false }
-            const updateData = {};
-            updateData[`typing.${currentUserData.username}`] = isTyping;
-            
-            updateDoc(typingRef, updateData).catch(e => console.error("Erreur typing:", e));
-        }
-
-        function listenToPartnerTyping() {
-            if (!currentChatId || !chatPartnerUsername) return;
-            
-            if (unsubscribePartnerTyping) unsubscribePartnerTyping();
-
-            const chatRef = doc(db, "chats", currentChatId);
-            
-            unsubscribePartnerTyping = onSnapshot(chatRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    const isPartnerTyping = data.typing && data.typing[chatPartnerUsername] === true;
-                    
-                    if (isPartnerTyping) {
-                        typingIndicatorEl.style.display = 'block';
-                        scrollToBottom(); // S'assurer que l'indicateur est visible
-                    } else {
-                        typingIndicatorEl.style.display = 'none';
-                    }
-                }
-            });
-        }
-
         // --- AUTH ---
         document.getElementById('show-register').addEventListener('click', () => {
             document.getElementById('login-form').style.display = 'none';
@@ -3036,7 +2896,7 @@
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
                 const user = cred.user;
                 
-                // Création du document utilisateur avec les champs de présence
+                // AJOUT DES CHAMPS DE PRÉSENCE DANS LE DOCUMENT UTILISATEUR
                 await setDoc(doc(db, "users", user.uid), { 
                     prenom: prenom, 
                     username: username, 
@@ -3044,11 +2904,10 @@
                     createdAt: serverTimestamp(),
                     bio: "Amoureux de Wendy 🥰",
                     messagesCount: 0,
-                    isOnline: true, // Par défaut en ligne à l'inscription
-                    lastSeen: serverTimestamp(),
-                    presencePrivacy: true // Par défaut: statut visible
+                    show_online_status: true, // Par défaut visible
+                    isOnline: true, // Initialisé à true
+                    lastSeen: serverTimestamp() // Timestamp initial
                 });
-                
                 await updateProfile(user, { displayName: prenom });
                 showToast("Inscription réussie !");
                 switchView('search');
@@ -3072,17 +2931,9 @@
                 .finally(() => setBtnLoading('btn-login', false));
         });
 
-        document.getElementById('btn-logout').addEventListener('click', async () => {
+        document.getElementById('btn-logout').addEventListener('click', () => {
             // Se mettre hors ligne avant de déconnecter
-            await updateUserStatus(false);
-            if (currentUserData && currentUserData.uid) {
-                const userStatusDatabaseRef = ref(rtdb, 'status/' + currentUserData.uid);
-                set(userStatusDatabaseRef, {
-                    state: 'offline',
-                    lastSeen: serverTimestamp()
-                });
-            }
-            
+            goOfflineRTDB();
             signOut(auth).then(() => {
                 showToast("Déconnecté avec succès");
                 switchView('auth');
@@ -3096,20 +2947,10 @@
                     currentUserData = docSnap.data();
                     currentUserData.uid = user.uid;
                     
-                    // Initialiser la présence en temps réel
-                    setupRealtimePresence();
+                    // Initialiser la présence
+                    goOnlineRTDB();
                     setupVisibilityHandlers();
-                    
-                    // Récupérer le paramètre de confidentialité
-                    const hideStatus = localStorage.getItem('loveVibes_hideStatus');
-                    if (hideStatus === null) {
-                        // Premier chargement: utiliser la valeur par défaut (true = visible)
-                        localStorage.setItem('loveVibes_hideStatus', 'false');
-                        document.getElementById('toggle-online-status').checked = true;
-                    } else {
-                        // Restaurer le paramètre sauvegardé
-                        document.getElementById('toggle-online-status').checked = hideStatus === 'false';
-                    }
+                    setupPrivacyToggle();
                     
                     // Mettre à jour l'interface du profil
                     document.getElementById('profile-username-edit').value = currentUserData.username;
@@ -3192,11 +3033,7 @@
                     div.addEventListener('click', async () => {
                         const userQ = query(collection(db, "users"), where("username", "==", otherUser));
                         const userSnap = await getDocs(userQ);
-                        if(!userSnap.empty) {
-                            const partnerData = userSnap.docs[0].data();
-                            partnerData.uid = userSnap.docs[0].id;
-                            openChat(partnerData);
-                        }
+                        if(!userSnap.empty) openChat(userSnap.docs[0].data());
                     });
                     
                     if (isPinned) {
@@ -3233,11 +3070,7 @@
                     const div = document.createElement('div');
                     div.className = 'chat-item';
                     div.innerHTML = `<div class="avatar">${data.prenom.charAt(0)}</div><div><div style="font-weight:600">${data.prenom}</div><div style="font-size:0.8rem; opacity:0.7">@${data.username}</div></div>`;
-                    div.addEventListener('click', () => {
-                        const partnerData = data;
-                        partnerData.uid = doc.id;
-                        openChat(partnerData);
-                    });
+                    div.addEventListener('click', () => openChat(data));
                     resultsDiv.appendChild(div);
                 });
             } catch (e) { 
@@ -3253,7 +3086,6 @@
         async function openChat(partnerData) {
             chatPartnerUsername = partnerData.username;
             chatPartnerUid = partnerData.uid; // Sauvegarder l'UID pour la présence
-            chatPartnerData = partnerData; // Stocker toutes les données du partenaire
             currentChatId = getChatId(currentUserData.username, chatPartnerUsername);
             
             document.getElementById('chat-username').textContent = partnerData.prenom;
@@ -3271,7 +3103,7 @@
             listenToMessages();
             
             // 2. Écouter la présence du partenaire
-            listenToPartnerStatus(chatPartnerUid);
+            listenToPartnerPresenceRTDB(chatPartnerUid);
 
             // 3. Écouter le statut de saisie du partenaire
             listenToPartnerTyping();
@@ -3306,13 +3138,19 @@
             const q = query(collection(db, `chats/${currentChatId}/messages`), orderBy("timestamp", "asc"));
             
             unsubscribeMessages = onSnapshot(q, (snapshot) => {
+                // On ne vide pas tout le container à chaque update pour ne pas casser l'input focus
+                // Mais pour simplifier ici et éviter les doublons complexes à gérer sans ID unique stable côté client :
+                // On vide, ou on fait du diffing. Pour l'instant, "innerHTML = ''" est acceptable pour un chat simple.
+                // AMELIORATION: Pour ne pas scintiller, on pourrait vérifier si c'est un nouveau message.
+                // Ici, on garde la logique simple mais on s'assure que l'input ne perd pas le focus.
                 const wasFocused = document.activeElement === msgInput;
                 const cursorPos = msgInput.selectionStart;
                 const inputVal = msgInput.value;
 
                 messagesContainer.innerHTML = '';
                 
-                // Réinjecter l'indicateur de saisie
+                // Réinjecter l'indicateur de saisie (car il est dans le container)
+                // On ne l'affiche pas encore, listenToPartnerTyping s'en chargera.
                 messagesContainer.appendChild(typingIndicatorEl); 
 
                 let hasMessages = false;
@@ -3381,14 +3219,44 @@
                 localStorage.setItem('loveVibes_messagesSent', newCount.toString());
                 document.getElementById('messages-sent').textContent = newCount;
                 initializeProgressBar();
-                
-                // Mettre à jour Firestore
-                if (currentUserData && currentUserData.uid) {
-                    updateDoc(doc(db, "users", currentUserData.uid), {
-                        messagesCount: newCount
-                    });
-                }
             }
+        }
+
+        // ============================================
+        // MODULE EXPERT : SYSTÈME DE SAISIE (FIRESTORE)
+        // ============================================
+
+        function setMyTypingStatus(isTyping) {
+            if (!currentChatId) return;
+            const typingRef = doc(db, "chats", currentChatId);
+            
+            // On utilise une Map pour stocker qui tape : { username: true/false }
+            const updateData = {};
+            updateData[`typing.${currentUserData.username}`] = isTyping;
+            
+            updateDoc(typingRef, updateData).catch(e => console.error("Erreur typing:", e));
+        }
+
+        function listenToPartnerTyping() {
+            if (!currentChatId || !chatPartnerUsername) return;
+            
+            if (unsubscribePartnerTyping) unsubscribePartnerTyping();
+
+            const chatRef = doc(db, "chats", currentChatId);
+            
+            unsubscribePartnerTyping = onSnapshot(chatRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const isPartnerTyping = data.typing && data.typing[chatPartnerUsername] === true;
+                    
+                    if (isPartnerTyping) {
+                        typingIndicatorEl.style.display = 'block';
+                        scrollToBottom(); // S'assurer que l'indicateur est visible
+                    } else {
+                        typingIndicatorEl.style.display = 'none';
+                    }
+                }
+            });
         }
 
         // SEND MESSAGE & TYPING LOGIC
@@ -3499,32 +3367,22 @@
         document.getElementById('nav-profile').addEventListener('click', () => switchView('profile'));
         document.getElementById('nav-settings').addEventListener('click', () => switchView('settings'));
 
-        // ============================================
-        // INITIALISATION DU SYSTÈME DE PRÉSENCE AU CHARGEMENT
-        // ============================================
-        
-        window.addEventListener('load', () => {
-            // Vérifier si on est connecté pour initialiser la présence
-            if (auth.currentUser) {
-                // La présence sera initialisée dans onAuthStateChanged
-            }
+        // Initialiser la barre de progression (fonction utilitaire)
+        function initializeProgressBar() {
+            const messagesSent = parseInt(localStorage.getItem('loveVibes_messagesSent') || '127');
+            const level = Math.floor(messagesSent / 100) + 1;
+            const progress = (messagesSent % 100);
             
-            // Forcer une mise à jour du statut quand la page devient visible
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden && auth.currentUser) {
-                    // Revenir en ligne si on n'est pas en mode privé
-                    const hideStatus = localStorage.getItem('loveVibes_hideStatus') === 'true';
-                    if (!hideStatus && currentUserData && currentUserData.uid) {
-                        const userStatusDatabaseRef = ref(rtdb, 'status/' + currentUserData.uid);
-                        set(userStatusDatabaseRef, {
-                            state: 'online',
-                            lastChanged: serverTimestamp()
-                        });
-                        updateUserStatus(true);
-                    }
-                }
-            });
-        });
+            const userLevelEl = document.getElementById('user-level');
+            const userPointsEl = document.getElementById('user-points');
+            const progressPercentEl = document.getElementById('progress-percent');
+            const progressFillEl = document.getElementById('progress-fill');
+            
+            if (userLevelEl) userLevelEl.textContent = level;
+            if (userPointsEl) userPointsEl.textContent = `${messagesSent}/1000`;
+            if (progressPercentEl) progressPercentEl.textContent = `${progress}%`;
+            if (progressFillEl) progressFillEl.style.width = `${progress}%`;
+        }
 
     </script>
 </body>
